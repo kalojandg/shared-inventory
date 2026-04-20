@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Shared Inventory</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b0c12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Inventory">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -259,6 +263,11 @@
 
 <div class="sync" id="sync">●  live</div>
 
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js');
+  }
+</script>
 <!-- SortableJS -->
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
