@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shared Inventory</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0b0c12;
+      --surface: #13141f;
+      --surface2: #1c1e2e;
+      --border: #2a2d42;
+      --accent: #3a7afe;
+      --accent2: #5b8fff;
+      --text: #e6e6ef;
+      --muted: #8888aa;
+      --danger: #e05252;
+      --success: #3ecf8e;
+      --warning: #f6c90e;
+      --gold: #f6c90e;
+      --silver: #aab4c4;
+      --copper: #c87941;
+      --platinum: #a8d8ea;
+    }
+
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 15px; min-height: 100vh; }
+
+    h1 { text-align: center; padding: 18px 0 4px; font-size: 1.4rem; letter-spacing: 1px; color: var(--accent2); }
+    .subtitle { text-align: center; color: var(--muted); font-size: 0.8rem; margin-bottom: 12px; }
+
+    /* Tabs */
+    .tab-nav { display: flex; border-bottom: 2px solid var(--border); background: var(--surface); }
+    .tab-btn { flex: 1; padding: 12px; background: none; border: none; color: var(--muted); font-size: 1rem; cursor: pointer; transition: color .15s, border-bottom .15s; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+    .tab-btn.active { color: var(--accent2); border-bottom-color: var(--accent); }
+    .tab-btn:hover { color: var(--text); }
+
+    .tab { display: none; padding: 16px; max-width: 900px; margin: 0 auto; }
+    .tab.active { display: block; }
+
+    /* Buttons */
+    button { cursor: pointer; border: none; border-radius: 6px; padding: 7px 16px; font-size: 0.9rem; transition: opacity .15s; }
+    button:hover { opacity: .85; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-success { background: var(--success); color: #000; }
+    .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-sm { padding: 4px 10px; font-size: 0.8rem; }
+
+    /* Gold section */
+    .gold-section { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }
+    .gold-section h3 { font-size: 0.85rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .coin-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+    .coin-cell { text-align: center; }
+    .coin-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+    .coin-val { font-size: 1.4rem; font-weight: 700; }
+    .coin-val.pp { color: var(--platinum); }
+    .coin-val.gp { color: var(--gold); }
+    .coin-val.sp { color: var(--silver); }
+    .coin-val.cp { color: var(--copper); }
+    .coin-inputs { display: grid; grid-template-columns: repeat(4, 1fr) auto auto; gap: 8px; align-items: end; }
+    .coin-inputs input { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 6px 8px; font-size: 0.9rem; text-align: center; }
+    .coin-inputs input:focus { outline: none; border-color: var(--accent); }
+    .gold-error { color: var(--danger); font-size: 0.82rem; margin-top: 6px; display: none; }
+    .gold-error.visible { display: block; }
+
+    /* Controls row */
+    .controls { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+
+    /* Table */
+    .tbl-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { background: var(--surface2); color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: .5px; padding: 9px 10px; text-align: left; white-space: nowrap; }
+    tbody tr { border-top: 1px solid var(--border); transition: background .1s; }
+    tbody tr:hover { background: var(--surface2); }
+    tbody td { padding: 9px 10px; vertical-align: middle; font-size: 0.9rem; }
+    .drag-handle { cursor: grab; color: var(--muted); user-select: none; padding: 0 4px; }
+    .drag-handle:active { cursor: grabbing; }
+    .tbl-actions { display: flex; gap: 6px; white-space: nowrap; }
+    .tbl-footer { background: var(--surface2); border-top: 2px solid var(--border); }
+    .tbl-footer td { color: var(--muted); font-size: 0.82rem; padding: 7px 10px; }
+
+    /* Status badges */
+    .badge { display: inline-block; border-radius: 20px; padding: 2px 10px; font-size: 0.78rem; font-weight: 600; }
+    .badge-active  { background: #3a3000; color: var(--warning); }
+    .badge-done    { background: #003322; color: var(--success); }
+    .badge-failed  { background: #2e0000; color: var(--danger); }
+    .badge-paused  { background: #1e1e2e; color: var(--muted); }
+
+    /* Modal */
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,.65); display: flex; align-items: center; justify-content: center; z-index: 100; display: none; }
+    .modal.open { display: flex; }
+    .modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
+    .modal-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 18px; color: var(--accent2); }
+    .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+    .field label { font-size: 0.82rem; color: var(--muted); }
+    .field input, .field select, .field textarea {
+      background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+      border-radius: 6px; padding: 8px 10px; font-size: 0.9rem; font-family: inherit;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--accent); }
+    .field textarea { resize: vertical; min-height: 70px; }
+    .field select option { background: var(--surface2); }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+
+    /* Sync indicator */
+    .sync { position: fixed; bottom: 14px; right: 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; font-size: 0.78rem; color: var(--muted); transition: all .3s; }
+    .sync.saving { color: var(--warning); border-color: var(--warning); }
+    .sync.saved  { color: var(--success); border-color: var(--success); }
+
+    .empty { text-align: center; color: var(--muted); padding: 30px; font-size: 0.9rem; }
+
+    @media (max-width: 540px) {
+      .coin-inputs { grid-template-columns: repeat(2, 1fr); }
+      .coin-inputs .btn-gain, .coin-inputs .btn-spend { grid-column: span 1; }
+      tbody td:nth-child(4), thead th:nth-child(4),
+      tbody td:nth-child(5), thead th:nth-child(5) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>⚔ Shared Inventory</h1>
+<p class="subtitle" id="syncStatus">Connecting…</p>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" data-tab="inventory">Инвентар</button>
+  <button class="tab-btn" data-tab="quests">Куестове</button>
+</nav>
+
+<!-- ══════════════════════ INVENTORY TAB ══════════════════════ -->
+<div id="tab-inventory" class="tab active">
+
+  <div class="gold-section">
+    <h3>💰 Хазна</h3>
+    <div class="coin-grid">
+      <div class="coin-cell"><div class="coin-label">Platinum</div><div class="coin-val pp" id="dispPP">0</div></div>
+      <div class="coin-cell"><div class="coin-label">Gold</div><div class="coin-val gp" id="dispGP">0</div></div>
+      <div class="coin-cell"><div class="coin-label">Silver</div><div class="coin-val sp" id="dispSP">0</div></div>
+      <div class="coin-cell"><div class="coin-label">Copper</div><div class="coin-val cp" id="dispCP">0</div></div>
+    </div>
+    <div class="coin-inputs">
+      <input id="inPP" type="number" min="0" step="1" placeholder="PP">
+      <input id="inGP" type="number" min="0" step="1" placeholder="GP">
+      <input id="inSP" type="number" min="0" step="1" placeholder="SP">
+      <input id="inCP" type="number" min="0" step="1" placeholder="CP">
+      <button class="btn-success btn-gain" onclick="handleGain()">Gain</button>
+      <button class="btn-ghost btn-spend" onclick="handleSpend()">Spend</button>
+    </div>
+    <div class="gold-error" id="goldError">Недостатъчно средства!</div>
+  </div>
+
+  <div class="controls">
+    <button class="btn-primary" onclick="openItemModal()">+ Добави предмет</button>
+  </div>
+
+  <div class="tbl-wrap">
+    <table id="invTable">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Предмет</th>
+          <th>Кол.</th>
+          <th>Тегло</th>
+          <th>Стойност</th>
+          <th>Носи</th>
+          <th>Бележки</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="invBody"></tbody>
+      <tfoot><tr class="tbl-footer"><td colspan="8" id="invFooter"></td></tr></tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════ QUESTS TAB ══════════════════════ -->
+<div id="tab-quests" class="tab">
+
+  <div class="controls">
+    <button class="btn-primary" onclick="openQuestModal()">+ Добави куест</button>
+  </div>
+
+  <div class="tbl-wrap">
+    <table id="questTable">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Куест</th>
+          <th>Статус</th>
+          <th>Дадено от</th>
+          <th>Награда</th>
+          <th>Бележки</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="questBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════ ITEM MODAL ══════════════════════ -->
+<div class="modal" id="itemModal">
+  <div class="modal-card">
+    <div class="modal-title" id="itemModalTitle">Добави предмет</div>
+    <div class="field"><label>Предмет *</label><input id="iName" type="text" placeholder="Меч / Въже / Зелие…"></div>
+    <div class="field"><label>Категория</label>
+      <select id="iCat">
+        <option value="Разно">Разно</option>
+        <option value="Оръжие">Оръжие</option>
+        <option value="Броня">Броня</option>
+        <option value="Консуматив">Консуматив</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div class="field"><label>Количество</label><input id="iQty" type="number" min="0" value="1"></div>
+      <div class="field"><label>Тегло (lb)</label><input id="iWeight" type="number" min="0" step="0.1" value="0"></div>
+      <div class="field"><label>Стойност (gp)</label><input id="iValue" type="number" min="0" step="0.01" value="0"></div>
+    </div>
+    <div class="field"><label>Носи</label>
+      <select id="iCarrier">
+        <option value="Party">Party</option>
+        <!-- PLAYERS populated by JS -->
+      </select>
+    </div>
+    <div class="field"><label>Бележки</label><textarea id="iNote"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeItemModal()">Отказ</button>
+      <button class="btn-primary" onclick="saveItem()">Запази</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ QUEST MODAL ══════════════════════ -->
+<div class="modal" id="questModal">
+  <div class="modal-card">
+    <div class="modal-title" id="questModalTitle">Добави куест</div>
+    <div class="field"><label>Куест *</label><input id="qName" type="text" placeholder="Убий дракона…"></div>
+    <div class="field"><label>Статус</label>
+      <select id="qStatus">
+        <option value="Активен">Активен</option>
+        <option value="Изпълнен">Изпълнен</option>
+        <option value="Провален">Провален</option>
+        <option value="Паузиран">Паузиран</option>
+      </select>
+    </div>
+    <div class="field"><label>Дадено от</label><input id="qGiver" type="text" placeholder="NPC / Фракция…"></div>
+    <div class="field"><label>Описание</label><textarea id="qDesc"></textarea></div>
+    <div class="field"><label>Награда</label><input id="qReward" type="text" placeholder="500 XP, 50 GP…"></div>
+    <div class="field"><label>Бележки</label><textarea id="qNote"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeQuestModal()">Отказ</button>
+      <button class="btn-primary" onclick="saveQuest()">Запази</button>
+    </div>
+  </div>
+</div>
+
+<div class="sync" id="sync">●  live</div>
+
+<!-- SortableJS -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
+<!-- Firebase SDK (CDN, no bundler needed) -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {
+  getFirestore, doc, collection,
+  onSnapshot, setDoc, updateDoc, deleteDoc, getDoc
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+// ─── CONFIG ────────────────────────────────────────────────
+const PLAYERS = ['Вася', 'Петко', 'Мария', 'Стефан', 'Ники']; // ← смени с имената на групата
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA7LEfwfDloLW5fa-8dH0nZfRc7NFVttvY",
+  authDomain: "shared-inventory-762de.firebaseapp.com",
+  projectId: "shared-inventory-762de",
+  storageBucket: "shared-inventory-762de.firebasestorage.app",
+  messagingSenderId: "248785005685",
+  appId: "1:248785005685:web:96316ba956406bb1779c3c"
+};
+
+// ─── INIT ───────────────────────────────────────────────────
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+const GOLD_DOC  = doc(db, 'inventory', 'gold');
+const ITEMS_DOC = doc(db, 'inventory', 'items');
+const QUESTS_DOC = doc(db, 'quests', 'items');
+
+// ─── LOCAL STATE ────────────────────────────────────────────
+let gold   = { pp: 0, gp: 0, sp: 0, cp: 0 };
+let items  = [];
+let quests = [];
+let editingItemIdx  = null;
+let editingQuestIdx = null;
+
+// ─── SYNC INDICATOR ─────────────────────────────────────────
+function syncMsg(msg, cls) {
+  const el = document.getElementById('sync');
+  el.textContent = msg;
+  el.className = 'sync ' + (cls || '');
+}
+
+// ─── GOLD PURE FUNCTION (borrow-down) ───────────────────────
+function spendGold(current, cost) {
+  const toCp = ({ pp=0, gp=0, sp=0, cp=0 }) =>
+    Math.floor(pp)*1000 + Math.floor(gp)*100 + Math.floor(sp)*10 + Math.floor(cp);
+  if (toCp(cost) > toCp(current)) return null;
+
+  let pp = +current.pp, gp = +current.gp, sp = +current.sp, cp = +current.cp;
+
+  cp -= +(cost.cp || 0);
+  if (cp < 0) { const b = Math.ceil(-cp/10); sp -= b; cp += b*10; }
+  sp -= +(cost.sp || 0);
+  if (sp < 0) { const b = Math.ceil(-sp/10); gp -= b; sp += b*10; }
+  gp -= +(cost.gp || 0);
+  if (gp < 0) { const b = Math.ceil(-gp/10); pp -= b; gp += b*10; }
+  pp -= +(cost.pp || 0);
+
+  return { pp, gp, sp, cp };
+}
+
+// ─── GOLD UI ────────────────────────────────────────────────
+function renderGold() {
+  document.getElementById('dispPP').textContent = gold.pp;
+  document.getElementById('dispGP').textContent = gold.gp;
+  document.getElementById('dispSP').textContent = gold.sp;
+  document.getElementById('dispCP').textContent = gold.cp;
+}
+
+function coinInputs() {
+  const v = id => Math.max(0, Math.floor(+document.getElementById(id).value || 0));
+  return { pp: v('inPP'), gp: v('inGP'), sp: v('inSP'), cp: v('inCP') };
+}
+function clearCoinInputs() {
+  ['inPP','inGP','inSP','inCP'].forEach(id => document.getElementById(id).value = '');
+}
+
+window.handleGain = async function() {
+  const amt = coinInputs();
+  const next = { pp: gold.pp+amt.pp, gp: gold.gp+amt.gp, sp: gold.sp+amt.sp, cp: gold.cp+amt.cp };
+  clearCoinInputs();
+  gold = next;
+  renderGold();
+  syncMsg('Saving…', 'saving');
+  await setDoc(GOLD_DOC, next);
+  syncMsg('● Saved', 'saved');
+};
+
+window.handleSpend = async function() {
+  const cost = coinInputs();
+  const result = spendGold(gold, cost);
+  const errEl = document.getElementById('goldError');
+  if (!result) { errEl.classList.add('visible'); return; }
+  errEl.classList.remove('visible');
+  clearCoinInputs();
+  gold = result;
+  renderGold();
+  syncMsg('Saving…', 'saving');
+  await setDoc(GOLD_DOC, result);
+  syncMsg('● Saved', 'saved');
+};
+
+// ─── POPULATE CARRIER SELECT ────────────────────────────────
+PLAYERS.forEach(p => {
+  const opt = document.createElement('option');
+  opt.value = opt.textContent = p;
+  document.getElementById('iCarrier').appendChild(opt);
+});
+
+// ─── ITEMS RENDER ───────────────────────────────────────────
+function renderItems() {
+  const tbody = document.getElementById('invBody');
+  if (!items.length) {
+    tbody.innerHTML = `<tr><td colspan="8" class="empty">Инвентарът е празен.</td></tr>`;
+    document.getElementById('invFooter').textContent = '';
+    return;
+  }
+  tbody.innerHTML = items.map((it, i) => `
+    <tr data-idx="${i}">
+      <td><span class="drag-handle">☰</span></td>
+      <td><strong>${esc(it.name)}</strong><br><small style="color:var(--muted)">${esc(it.cat||'')}</small></td>
+      <td>${it.qty ?? 1}</td>
+      <td>${it.weight ?? 0} lb</td>
+      <td>${it.value ?? 0} gp</td>
+      <td>${esc(it.carrier||'Party')}</td>
+      <td style="max-width:180px;white-space:pre-wrap;word-break:break-word">${esc(it.note||'')}</td>
+      <td><div class="tbl-actions">
+        <button class="btn-ghost btn-sm" onclick="editItem(${i})">✏</button>
+        <button class="btn-danger btn-sm" onclick="deleteItem(${i})">🗑</button>
+      </div></td>
+    </tr>`).join('');
+
+  const totalW = items.reduce((s, it) => s + (+it.weight||0)*(+it.qty||1), 0);
+  const totalV = items.reduce((s, it) => s + (+it.value||0)*(+it.qty||1), 0);
+  document.getElementById('invFooter').textContent =
+    `Общо: ${totalW.toFixed(1)} lb  |  ${totalV.toFixed(2)} gp`;
+
+  initSortable('invBody', items, saveItems);
+}
+
+// ─── ITEM MODAL ─────────────────────────────────────────────
+window.openItemModal = function(idx = null) {
+  editingItemIdx = idx;
+  const it = idx !== null ? items[idx] : null;
+  document.getElementById('itemModalTitle').textContent = it ? 'Редактирай предмет' : 'Добави предмет';
+  document.getElementById('iName').value    = it?.name    || '';
+  document.getElementById('iCat').value     = it?.cat     || 'Разно';
+  document.getElementById('iQty').value     = it?.qty     ?? 1;
+  document.getElementById('iWeight').value  = it?.weight  ?? 0;
+  document.getElementById('iValue').value   = it?.value   ?? 0;
+  document.getElementById('iCarrier').value = it?.carrier || 'Party';
+  document.getElementById('iNote').value    = it?.note    || '';
+  document.getElementById('itemModal').classList.add('open');
+  document.getElementById('iName').focus();
+};
+window.closeItemModal = () => document.getElementById('itemModal').classList.remove('open');
+window.editItem = i => openItemModal(i);
+
+window.saveItem = async function() {
+  const name = document.getElementById('iName').value.trim();
+  if (!name) { document.getElementById('iName').focus(); return; }
+  const item = {
+    name,
+    cat:     document.getElementById('iCat').value,
+    qty:     +document.getElementById('iQty').value   || 1,
+    weight:  +document.getElementById('iWeight').value|| 0,
+    value:   +document.getElementById('iValue').value || 0,
+    carrier: document.getElementById('iCarrier').value,
+    note:    document.getElementById('iNote').value.trim(),
+  };
+  if (editingItemIdx !== null) items[editingItemIdx] = item;
+  else items.push(item);
+  closeItemModal();
+  renderItems();
+  await saveItems();
+};
+
+window.deleteItem = async function(i) {
+  if (!confirm(`Изтрий "${items[i].name}"?`)) return;
+  items.splice(i, 1);
+  renderItems();
+  await saveItems();
+};
+
+async function saveItems() {
+  syncMsg('Saving…', 'saving');
+  await setDoc(ITEMS_DOC, { list: items });
+  syncMsg('● Saved', 'saved');
+}
+
+// ─── QUESTS RENDER ──────────────────────────────────────────
+const BADGE = {
+  'Активен': 'badge-active', 'Изпълнен': 'badge-done',
+  'Провален': 'badge-failed', 'Паузиран': 'badge-paused'
+};
+const NEXT_STATUS = {
+  'Активен': 'Изпълнен', 'Изпълнен': 'Паузиран',
+  'Паузиран': 'Активен',  'Провален': 'Активен'
+};
+
+function renderQuests() {
+  const tbody = document.getElementById('questBody');
+  if (!quests.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty">Няма активни куестове.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = quests.map((q, i) => `
+    <tr data-idx="${i}">
+      <td><span class="drag-handle">☰</span></td>
+      <td><strong>${esc(q.name)}</strong>${q.desc ? `<br><small style="color:var(--muted)">${esc(q.desc)}</small>` : ''}</td>
+      <td>
+        <span class="badge ${BADGE[q.status]||'badge-paused'}">${q.status}</span><br>
+        <button class="btn-ghost btn-sm" style="margin-top:4px" onclick="cycleStatus(${i})">${NEXT_STATUS[q.status]||'Активен'} →</button>
+      </td>
+      <td>${esc(q.giver||'—')}</td>
+      <td>${esc(q.reward||'—')}</td>
+      <td style="max-width:160px;white-space:pre-wrap;word-break:break-word">${esc(q.note||'')}</td>
+      <td><div class="tbl-actions">
+        <button class="btn-ghost btn-sm" onclick="editQuest(${i})">✏</button>
+        <button class="btn-danger btn-sm" onclick="deleteQuest(${i})">🗑</button>
+      </div></td>
+    </tr>`).join('');
+  initSortable('questBody', quests, saveQuests);
+}
+
+// ─── QUEST MODAL ─────────────────────────────────────────────
+window.openQuestModal = function(idx = null) {
+  editingQuestIdx = idx;
+  const q = idx !== null ? quests[idx] : null;
+  document.getElementById('questModalTitle').textContent = q ? 'Редактирай куест' : 'Добави куест';
+  document.getElementById('qName').value   = q?.name   || '';
+  document.getElementById('qStatus').value = q?.status || 'Активен';
+  document.getElementById('qGiver').value  = q?.giver  || '';
+  document.getElementById('qDesc').value   = q?.desc   || '';
+  document.getElementById('qReward').value = q?.reward || '';
+  document.getElementById('qNote').value   = q?.note   || '';
+  document.getElementById('questModal').classList.add('open');
+  document.getElementById('qName').focus();
+};
+window.closeQuestModal = () => document.getElementById('questModal').classList.remove('open');
+window.editQuest = i => openQuestModal(i);
+
+window.saveQuest = async function() {
+  const name = document.getElementById('qName').value.trim();
+  if (!name) { document.getElementById('qName').focus(); return; }
+  const q = {
+    name,
+    status: document.getElementById('qStatus').value,
+    giver:  document.getElementById('qGiver').value.trim(),
+    desc:   document.getElementById('qDesc').value.trim(),
+    reward: document.getElementById('qReward').value.trim(),
+    note:   document.getElementById('qNote').value.trim(),
+  };
+  if (editingQuestIdx !== null) quests[editingQuestIdx] = q;
+  else quests.push(q);
+  closeQuestModal();
+  renderQuests();
+  await saveQuests();
+};
+
+window.cycleStatus = async function(i) {
+  quests[i].status = NEXT_STATUS[quests[i].status] || 'Активен';
+  renderQuests();
+  await saveQuests();
+};
+
+window.deleteQuest = async function(i) {
+  if (!confirm(`Изтрий куест "${quests[i].name}"?`)) return;
+  quests.splice(i, 1);
+  renderQuests();
+  await saveQuests();
+};
+
+async function saveQuests() {
+  syncMsg('Saving…', 'saving');
+  await setDoc(QUESTS_DOC, { list: quests });
+  syncMsg('● Saved', 'saved');
+}
+
+// ─── DRAG & DROP ────────────────────────────────────────────
+function initSortable(tbodyId, arr, saveFn) {
+  const el = document.getElementById(tbodyId);
+  if (el._sortable) el._sortable.destroy();
+  el._sortable = new Sortable(el, {
+    handle: '.drag-handle',
+    animation: 150,
+    onEnd(evt) {
+      const moved = arr.splice(evt.oldIndex, 1)[0];
+      arr.splice(evt.newIndex, 0, moved);
+      saveFn();
+    }
+  });
+}
+
+// ─── TABS ───────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Close modals on backdrop click
+['itemModal','questModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => {
+    if (e.target.id === id) document.getElementById(id).classList.remove('open');
+  });
+});
+
+// ─── ESCAPE HELPER ──────────────────────────────────────────
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── REAL-TIME LISTENERS ────────────────────────────────────
+onSnapshot(GOLD_DOC, snap => {
+  gold = snap.exists() ? snap.data() : { pp:0, gp:0, sp:0, cp:0 };
+  renderGold();
+});
+
+onSnapshot(ITEMS_DOC, snap => {
+  items = snap.exists() ? (snap.data().list || []) : [];
+  renderItems();
+});
+
+onSnapshot(QUESTS_DOC, snap => {
+  quests = snap.exists() ? (snap.data().list || []) : [];
+  renderQuests();
+  document.getElementById('syncStatus').textContent = 'Live sync ✓';
+  syncMsg('● live', 'saved');
+});
+
+</script>
+</body>
+</html>
