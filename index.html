@@ -441,8 +441,8 @@ window.saveItem = async function() {
     carrier: document.getElementById('iCarrier').value,
     note:    document.getElementById('iNote').value.trim(),
   };
-  if (editingItemIdx !== null) items[editingItemIdx] = item;
-  else items.push(item);
+  if (editingItemIdx !== null) items.splice(editingItemIdx, 1);
+  items.unshift(item);
   closeItemModal();
   renderItems();
   await saveItems();
