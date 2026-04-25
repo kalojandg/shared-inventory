@@ -310,6 +310,7 @@ let items  = [];
 let quests = [];
 let editingItemIdx  = null;
 let editingQuestIdx = null;
+let saving = false;
 
 // ─── SYNC INDICATOR ─────────────────────────────────────────
 function syncMsg(msg, cls) {
@@ -461,9 +462,14 @@ window.deleteItem = async function(i) {
 };
 
 async function saveItems() {
+  saving = true;
   syncMsg('Saving…', 'saving');
-  await setDoc(ITEMS_DOC, { list: items });
-  syncMsg('● Saved', 'saved');
+  try {
+    await setDoc(ITEMS_DOC, { list: items });
+    syncMsg('● Saved', 'saved');
+  } finally {
+    saving = false;
+  }
 }
 
 // ─── QUESTS RENDER ──────────────────────────────────────────
@@ -599,6 +605,7 @@ onSnapshot(GOLD_DOC, snap => {
 });
 
 onSnapshot(ITEMS_DOC, snap => {
+  if (saving) return;
   items = snap.exists() ? (snap.data().list || []) : [];
   renderItems();
 });
