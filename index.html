@@ -311,6 +311,7 @@ let quests = [];
 let editingItemIdx  = null;
 let editingQuestIdx = null;
 let saving = false;
+let savingQuests = false;
 
 // ─── SYNC INDICATOR ─────────────────────────────────────────
 function syncMsg(msg, cls) {
@@ -535,15 +536,17 @@ window.saveQuest = async function() {
     reward: document.getElementById('qReward').value.trim(),
     note:   document.getElementById('qNote').value.trim(),
   };
-  if (editingQuestIdx !== null) quests[editingQuestIdx] = q;
-  else quests.push(q);
+  if (editingQuestIdx !== null) quests.splice(editingQuestIdx, 1);
+  quests.unshift(q);
   closeQuestModal();
   renderQuests();
   await saveQuests();
 };
 
 window.cycleStatus = async function(i) {
-  quests[i].status = NEXT_STATUS[quests[i].status] || 'Активен';
+  const q = quests.splice(i, 1)[0];
+  q.status = NEXT_STATUS[q.status] || 'Активен';
+  quests.unshift(q);
   renderQuests();
   await saveQuests();
 };
@@ -556,9 +559,14 @@ window.deleteQuest = async function(i) {
 };
 
 async function saveQuests() {
+  savingQuests = true;
   syncMsg('Saving…', 'saving');
-  await setDoc(QUESTS_DOC, { list: quests });
-  syncMsg('● Saved', 'saved');
+  try {
+    await setDoc(QUESTS_DOC, { list: quests });
+    syncMsg('● Saved', 'saved');
+  } finally {
+    savingQuests = false;
+  }
 }
 
 // ─── DRAG & DROP ────────────────────────────────────────────
@@ -611,6 +619,7 @@ onSnapshot(ITEMS_DOC, snap => {
 });
 
 onSnapshot(QUESTS_DOC, snap => {
+  if (savingQuests) return;
   quests = snap.exists() ? (snap.data().list || []) : [];
   renderQuests();
   document.getElementById('syncStatus').textContent = 'Live sync ✓';
