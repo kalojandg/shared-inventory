@@ -116,6 +116,33 @@
 
     .empty { text-align: center; color: var(--muted); padding: 30px; font-size: 0.9rem; }
 
+    /* Quest accordion */
+    .quest-row { cursor: pointer; }
+    .quest-desc {
+      color: var(--muted);
+      font-size: 0.85em;
+      margin-top: 3px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
+    }
+    .quest-note-cell {
+      max-width: 160px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
+    }
+    tr.quest-expanded .quest-desc,
+    tr.quest-expanded .quest-note-cell {
+      display: block;
+      overflow: visible;
+    }
+    tr.quest-expanded .quest-note-cell { white-space: pre-wrap; }
+
     @media (max-width: 540px) {
       .coin-inputs { grid-template-columns: repeat(2, 1fr); }
       .coin-inputs .btn-gain, .coin-inputs .btn-spend { grid-column: span 1; }
@@ -310,6 +337,7 @@ let items  = [];
 let quests = [];
 let editingItemIdx  = null;
 let editingQuestIdx = null;
+let expandedQuestIdx = null;
 let saving = false;
 let savingQuests = false;
 
@@ -490,21 +518,41 @@ function renderQuests() {
     return;
   }
   tbody.innerHTML = quests.map((q, i) => `
-    <tr data-idx="${i}">
+    <tr class="quest-row" data-idx="${i}">
       <td><span class="drag-handle">☰</span></td>
-      <td><strong>${esc(q.name)}</strong>${q.desc ? `<br><small style="color:var(--muted)">${esc(q.desc)}</small>` : ''}</td>
+      <td>
+        <strong>${esc(q.name)}</strong>
+        ${q.desc ? `<div class="quest-desc">${esc(q.desc)}</div>` : ''}
+      </td>
       <td>
         <span class="badge ${BADGE[q.status]||'badge-paused'}">${q.status}</span><br>
         <button class="btn-ghost btn-sm" style="margin-top:4px" onclick="cycleStatus(${i})">${NEXT_STATUS[q.status]||'Активен'} →</button>
       </td>
       <td>${esc(q.giver||'—')}</td>
       <td>${esc(q.reward||'—')}</td>
-      <td style="max-width:160px;white-space:pre-wrap;word-break:break-word">${esc(q.note||'')}</td>
+      <td><div class="quest-note-cell">${esc(q.note||'')}</div></td>
       <td><div class="tbl-actions">
         <button class="btn-ghost btn-sm" onclick="editQuest(${i})">✏</button>
         <button class="btn-danger btn-sm" onclick="deleteQuest(${i})">🗑</button>
       </div></td>
     </tr>`).join('');
+
+  tbody.querySelectorAll('tr[data-idx]').forEach(tr => {
+    tr.addEventListener('click', e => {
+      if (e.target.closest('button, .drag-handle')) return;
+      const idx = +tr.dataset.idx;
+      const wasExpanded = expandedQuestIdx === idx;
+      tbody.querySelectorAll('tr.quest-expanded').forEach(r => r.classList.remove('quest-expanded'));
+      expandedQuestIdx = wasExpanded ? null : idx;
+      if (!wasExpanded) tr.classList.add('quest-expanded');
+    });
+  });
+
+  if (expandedQuestIdx !== null) {
+    const r = tbody.querySelector(`tr[data-idx="${expandedQuestIdx}"]`);
+    if (r) r.classList.add('quest-expanded');
+  }
+
   initSortable('questBody', quests, saveQuests);
 }
 
