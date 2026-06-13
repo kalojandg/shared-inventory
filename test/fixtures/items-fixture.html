@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0b0c12; --surface: #13141f; --surface2: #1c1e2e;
+      --border: #2a2d42; --text: #e6e6ef; --muted: #8888aa;
+      --danger: #e05252; --success: #3ecf8e;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 15px; padding: 16px; }
+    button { cursor: pointer; border: none; border-radius: 6px; padding: 7px 16px; font-size: 0.9rem; }
+    .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-sm { padding: 4px 10px; font-size: 0.8rem; }
+    .tbl-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { background: var(--surface2); color: var(--muted); font-size: 0.78rem; padding: 9px 10px; text-align: left; }
+    tbody tr { border-top: 1px solid var(--border); }
+    tbody td { padding: 9px 10px; vertical-align: middle; font-size: 0.9rem; }
+    .drag-handle { cursor: grab; color: var(--muted); user-select: none; padding: 0 4px; }
+    .tbl-actions { display: flex; gap: 6px; }
+
+    /* Item accordion */
+    .item-row { cursor: pointer; }
+    .item-note-cell {
+      max-width: 180px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
+    }
+    tr.item-expanded .item-note-cell {
+      display: block;
+      overflow: visible;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="tbl-wrap">
+    <table id="invTable">
+      <thead><tr>
+        <th></th><th>Предмет</th><th>Кол.</th>
+        <th>Тегло</th><th>Стойност</th><th>Носи</th><th>Бележки</th><th></th>
+      </tr></thead>
+      <tbody id="invBody"></tbody>
+      <tfoot><tr><td colspan="8" id="invFooter"></td></tr></tfoot>
+    </table>
+  </div>
+
+  <script>
+    function esc(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    let items = [
+      { name: 'Меч', cat: 'Оръжие', qty: 1, weight: 3, value: 15, carrier: 'Калоян', note: 'Кратка бележка.' },
+      { name: 'Некромансърска книга на Нагаш', cat: 'Разно', qty: 1, weight: 2, value: 500, carrier: 'Party',
+        note: 'Тази книга е в същество само по себе си и не работи без останалите. Има собствено проявление и съзнание. Не знае къде са другите, но намирането на една води до следващата. Трябва да се пази далеч от некромантите.' }
+    ];
+
+    let expandedItemIdx = null;
+
+    function renderItems() {
+      const tbody = document.getElementById('invBody');
+      if (!items.length) {
+        tbody.innerHTML = `<tr><td colspan="8">Инвентарът е празен.</td></tr>`;
+        document.getElementById('invFooter').textContent = '';
+        return;
+      }
+      tbody.innerHTML = items.map((it, i) => `
+        <tr class="item-row" data-idx="${i}">
+          <td><span class="drag-handle">☰</span></td>
+          <td><strong>${esc(it.name)}</strong><br><small style="color:var(--muted)">${esc(it.cat||'')}</small></td>
+          <td>${it.qty ?? 1}</td>
+          <td>${it.weight ?? 0} lb</td>
+          <td>${it.value ?? 0} gp</td>
+          <td>${esc(it.carrier||'Party')}</td>
+          <td><div class="item-note-cell">${esc(it.note||'')}</div></td>
+          <td><div class="tbl-actions">
+            <button class="btn-ghost btn-sm" onclick="editItem(${i})">✏</button>
+            <button class="btn-danger btn-sm" onclick="deleteItem(${i})">🗑</button>
+          </div></td>
+        </tr>`).join('');
+
+      tbody.querySelectorAll('tr[data-idx]').forEach(tr => {
+        tr.addEventListener('click', e => {
+          if (e.target.closest('button, .drag-handle')) return;
+          const idx = +tr.dataset.idx;
+          const wasExpanded = expandedItemIdx === idx;
+          tbody.querySelectorAll('tr.item-expanded').forEach(r => r.classList.remove('item-expanded'));
+          expandedItemIdx = wasExpanded ? null : idx;
+          if (!wasExpanded) tr.classList.add('item-expanded');
+        });
+      });
+
+      if (expandedItemIdx !== null) {
+        const r = tbody.querySelector(`tr[data-idx="${expandedItemIdx}"]`);
+        if (r) r.classList.add('item-expanded');
+      }
+
+      const totalW = items.reduce((s, it) => s + (+it.weight||0)*(+it.qty||1), 0);
+      const totalV = items.reduce((s, it) => s + (+it.value||0)*(+it.qty||1), 0);
+      document.getElementById('invFooter').textContent =
+        `Общо: ${totalW.toFixed(1)} lb  |  ${totalV.toFixed(2)} gp`;
+    }
+
+    function editItem(i) { /* stub */ }
+    function deleteItem(i) {
+      if (!confirm(`Изтрий "${items[i].name}"?`)) return;
+      items.splice(i, 1);
+      renderItems();
+    }
+
+    renderItems();
+
+    window._items = items;
+    window._renderItems = renderItems;
+  </script>
+</body>
+</html>
