@@ -1,10 +1,10 @@
 import {
-  db, GOLD_DOC, ITEMS_DOC, QUESTS_DOC,
-  doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc, getDoc
+  GOLD_DOC, ITEMS_DOC, QUESTS_DOC,
+  onSnapshot, setDoc
 } from './modules/firebase.js';
 import { state } from './modules/state.js';
-import { spendGold, renderGold, coinInputs, clearCoinInputs, handleGain, handleSpend } from './modules/gold.js';
-import { esc, syncMsg, initSortable, initTabs, initModalBackdrops } from './modules/ui.js';
+import { renderGold, handleGain, handleSpend } from './modules/gold.js';
+import { syncMsg, initTabs, initModalBackdrops } from './modules/ui.js';
 import {
   renderItems, saveItems,
   openItemModal, closeItemModal, editItem, saveItem, deleteItem
