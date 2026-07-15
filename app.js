@@ -3,8 +3,8 @@ import {
   doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc, getDoc
 } from './modules/firebase.js';
 import { state } from './modules/state.js';
-import { spendGold, renderGold, coinInputs, clearCoinInputs } from './modules/gold.js';
-import { esc, syncMsg, initSortable } from './modules/ui.js';
+import { spendGold, renderGold, coinInputs, clearCoinInputs, handleGain, handleSpend } from './modules/gold.js';
+import { esc, syncMsg, initSortable, initTabs, initModalBackdrops } from './modules/ui.js';
 import {
   renderItems, saveItems,
   openItemModal, closeItemModal, editItem, saveItem, deleteItem
@@ -22,32 +22,9 @@ const PLAYERS = ['Калоян', 'Игор', 'Валентин', 'Петър'];
 
 // ─── SYNC INDICATOR (moved to modules/ui.js) ────────────────
 
-// ─── GOLD (pure logic + UI moved to modules/gold.js) ────────
-
-window.handleGain = async function() {
-  const amt = coinInputs();
-  const next = { pp: state.gold.pp+amt.pp, gp: state.gold.gp+amt.gp, sp: state.gold.sp+amt.sp, cp: state.gold.cp+amt.cp };
-  clearCoinInputs();
-  state.gold = next;
-  renderGold();
-  syncMsg('Saving…', 'saving');
-  await setDoc(GOLD_DOC, next);
-  syncMsg('● Saved', 'saved');
-};
-
-window.handleSpend = async function() {
-  const cost = coinInputs();
-  const result = spendGold(state.gold, cost);
-  const errEl = document.getElementById('goldError');
-  if (!result) { errEl.classList.add('visible'); return; }
-  errEl.classList.remove('visible');
-  clearCoinInputs();
-  state.gold = result;
-  renderGold();
-  syncMsg('Saving…', 'saving');
-  await setDoc(GOLD_DOC, result);
-  syncMsg('● Saved', 'saved');
-};
+// ─── GOLD (pure logic + UI + handlers moved to modules/gold.js) ──
+window.handleGain  = handleGain;
+window.handleSpend = handleSpend;
 
 // ─── POPULATE CARRIER SELECT ────────────────────────────────
 PLAYERS.forEach(p => {
@@ -71,22 +48,11 @@ window.saveQuest       = saveQuest;
 window.cycleStatus     = cycleStatus;
 window.deleteQuest     = deleteQuest;
 
-// ─── TABS ───────────────────────────────────────────────────
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-  });
-});
+// ─── TABS (wiring moved to modules/ui.js) ───────────────────
+initTabs();
 
-// Close modals on backdrop click
-['itemModal','questModal'].forEach(id => {
-  document.getElementById(id).addEventListener('click', e => {
-    if (e.target.id === id) document.getElementById(id).classList.remove('open');
-  });
-});
+// Close modals on backdrop click (wiring moved to modules/ui.js)
+initModalBackdrops();
 
 // ─── REAL-TIME LISTENERS ────────────────────────────────────
 onSnapshot(GOLD_DOC, snap => {
@@ -155,7 +121,7 @@ btnInstall.addEventListener('click', async () => {
 window.addEventListener('appinstalled', () => btnInstall.classList.add('hidden'));
 
 // ─── FACADE RE-EXPORTS ──────────────────────────────────────
-export { spendGold, renderGold, coinInputs, clearCoinInputs } from './modules/gold.js';
+export { spendGold, renderGold, coinInputs, clearCoinInputs, handleGain, handleSpend } from './modules/gold.js';
 export { esc, syncMsg, initSortable } from './modules/ui.js';
 export { renderItems, saveItems };
 export { BADGE, NEXT_STATUS, renderQuests, saveQuests } from './modules/quests.js';
