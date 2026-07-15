@@ -1,28 +1,10 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
-  getFirestore, doc, collection,
-  onSnapshot, setDoc, updateDoc, deleteDoc, getDoc
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  db, GOLD_DOC, ITEMS_DOC, QUESTS_DOC,
+  doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc, getDoc
+} from './modules/firebase.js';
 
 // ─── CONFIG ────────────────────────────────────────────────
 const PLAYERS = ['Калоян', 'Игор', 'Валентин', 'Петър'];
-
-const firebaseConfig = {
-  apiKey: "AIzaSyA7LEfwfDloLW5fa-8dH0nZfRc7NFVttvY",
-  authDomain: "shared-inventory-762de.firebaseapp.com",
-  projectId: "shared-inventory-762de",
-  storageBucket: "shared-inventory-762de.firebasestorage.app",
-  messagingSenderId: "248785005685",
-  appId: "1:248785005685:web:96316ba956406bb1779c3c"
-};
-
-// ─── INIT ───────────────────────────────────────────────────
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
-
-const GOLD_DOC  = doc(db, 'inventory', 'gold');
-const ITEMS_DOC = doc(db, 'inventory', 'items');
-const QUESTS_DOC = doc(db, 'quests', 'items');
 
 // ─── LOCAL STATE ────────────────────────────────────────────
 let gold   = { pp: 0, gp: 0, sp: 0, cp: 0 };
