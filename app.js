@@ -2,20 +2,13 @@ import {
   db, GOLD_DOC, ITEMS_DOC, QUESTS_DOC,
   doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc, getDoc
 } from './modules/firebase.js';
+import { state } from './modules/state.js';
 
 // ─── CONFIG ────────────────────────────────────────────────
 const PLAYERS = ['Калоян', 'Игор', 'Валентин', 'Петър'];
 
 // ─── LOCAL STATE ────────────────────────────────────────────
-let gold   = { pp: 0, gp: 0, sp: 0, cp: 0 };
-let items  = [];
-let quests = [];
-let editingItemIdx  = null;
-let editingQuestIdx = null;
-let expandedItemIdx  = null;
-let expandedQuestIdx = null;
-let saving = false;
-let savingQuests = false;
+// Mutable app state lives in modules/state.js (state.gold/items/quests/…)
 
 // ─── SYNC INDICATOR ─────────────────────────────────────────
 function syncMsg(msg, cls) {
@@ -45,10 +38,10 @@ function spendGold(current, cost) {
 
 // ─── GOLD UI ────────────────────────────────────────────────
 function renderGold() {
-  document.getElementById('dispPP').textContent = gold.pp;
-  document.getElementById('dispGP').textContent = gold.gp;
-  document.getElementById('dispSP').textContent = gold.sp;
-  document.getElementById('dispCP').textContent = gold.cp;
+  document.getElementById('dispPP').textContent = state.gold.pp;
+  document.getElementById('dispGP').textContent = state.gold.gp;
+  document.getElementById('dispSP').textContent = state.gold.sp;
+  document.getElementById('dispCP').textContent = state.gold.cp;
 }
 
 function coinInputs() {
@@ -61,9 +54,9 @@ function clearCoinInputs() {
 
 window.handleGain = async function() {
   const amt = coinInputs();
-  const next = { pp: gold.pp+amt.pp, gp: gold.gp+amt.gp, sp: gold.sp+amt.sp, cp: gold.cp+amt.cp };
+  const next = { pp: state.gold.pp+amt.pp, gp: state.gold.gp+amt.gp, sp: state.gold.sp+amt.sp, cp: state.gold.cp+amt.cp };
   clearCoinInputs();
-  gold = next;
+  state.gold = next;
   renderGold();
   syncMsg('Saving…', 'saving');
   await setDoc(GOLD_DOC, next);
@@ -72,12 +65,12 @@ window.handleGain = async function() {
 
 window.handleSpend = async function() {
   const cost = coinInputs();
-  const result = spendGold(gold, cost);
+  const result = spendGold(state.gold, cost);
   const errEl = document.getElementById('goldError');
   if (!result) { errEl.classList.add('visible'); return; }
   errEl.classList.remove('visible');
   clearCoinInputs();
-  gold = result;
+  state.gold = result;
   renderGold();
   syncMsg('Saving…', 'saving');
   await setDoc(GOLD_DOC, result);
@@ -94,12 +87,12 @@ PLAYERS.forEach(p => {
 // ─── ITEMS RENDER ───────────────────────────────────────────
 function renderItems() {
   const tbody = document.getElementById('invBody');
-  if (!items.length) {
+  if (!state.items.length) {
     tbody.innerHTML = `<tr><td colspan="8" class="empty">Инвентарът е празен.</td></tr>`;
     document.getElementById('invFooter').textContent = '';
     return;
   }
-  tbody.innerHTML = items.map((it, i) => `
+  tbody.innerHTML = state.items.map((it, i) => `
     <tr class="item-row" data-idx="${i}">
       <td><span class="drag-handle">☰</span></td>
       <td><strong>${esc(it.name)}</strong><br><small style="color:var(--muted)">${esc(it.cat||'')}</small></td>
@@ -118,30 +111,30 @@ function renderItems() {
     tr.addEventListener('click', e => {
       if (e.target.closest('button, .drag-handle')) return;
       const idx = +tr.dataset.idx;
-      const wasExpanded = expandedItemIdx === idx;
+      const wasExpanded = state.expandedItemIdx === idx;
       tbody.querySelectorAll('tr.item-expanded').forEach(r => r.classList.remove('item-expanded'));
-      expandedItemIdx = wasExpanded ? null : idx;
+      state.expandedItemIdx = wasExpanded ? null : idx;
       if (!wasExpanded) tr.classList.add('item-expanded');
     });
   });
 
-  if (expandedItemIdx !== null) {
-    const r = tbody.querySelector(`tr[data-idx="${expandedItemIdx}"]`);
+  if (state.expandedItemIdx !== null) {
+    const r = tbody.querySelector(`tr[data-idx="${state.expandedItemIdx}"]`);
     if (r) r.classList.add('item-expanded');
   }
 
-  const totalW = items.reduce((s, it) => s + (+it.weight||0)*(+it.qty||1), 0);
-  const totalV = items.reduce((s, it) => s + (+it.value||0)*(+it.qty||1), 0);
+  const totalW = state.items.reduce((s, it) => s + (+it.weight||0)*(+it.qty||1), 0);
+  const totalV = state.items.reduce((s, it) => s + (+it.value||0)*(+it.qty||1), 0);
   document.getElementById('invFooter').textContent =
     `Общо: ${totalW.toFixed(1)} lb  |  ${totalV.toFixed(2)} gp`;
 
-  initSortable('invBody', items, saveItems);
+  initSortable('invBody', state.items, saveItems);
 }
 
 // ─── ITEM MODAL ─────────────────────────────────────────────
 window.openItemModal = function(idx = null) {
-  editingItemIdx = idx;
-  const it = idx !== null ? items[idx] : null;
+  state.editingItemIdx = idx;
+  const it = idx !== null ? state.items[idx] : null;
   document.getElementById('itemModalTitle').textContent = it ? 'Редактирай предмет' : 'Добави предмет';
   document.getElementById('iName').value    = it?.name    || '';
   document.getElementById('iCat').value     = it?.cat     || 'Разно';
@@ -168,28 +161,28 @@ window.saveItem = async function() {
     carrier: document.getElementById('iCarrier').value,
     note:    document.getElementById('iNote').value.trim(),
   };
-  if (editingItemIdx !== null) items.splice(editingItemIdx, 1);
-  items.unshift(item);
+  if (state.editingItemIdx !== null) state.items.splice(state.editingItemIdx, 1);
+  state.items.unshift(item);
   closeItemModal();
   renderItems();
   await saveItems();
 };
 
 window.deleteItem = async function(i) {
-  if (!confirm(`Изтрий "${items[i].name}"?`)) return;
-  items.splice(i, 1);
+  if (!confirm(`Изтрий "${state.items[i].name}"?`)) return;
+  state.items.splice(i, 1);
   renderItems();
   await saveItems();
 };
 
 async function saveItems() {
-  saving = true;
+  state.saving = true;
   syncMsg('Saving…', 'saving');
   try {
-    await setDoc(ITEMS_DOC, { list: items });
+    await setDoc(ITEMS_DOC, { list: state.items });
     syncMsg('● Saved', 'saved');
   } finally {
-    saving = false;
+    state.saving = false;
   }
 }
 
@@ -205,11 +198,11 @@ const NEXT_STATUS = {
 
 function renderQuests() {
   const tbody = document.getElementById('questBody');
-  if (!quests.length) {
+  if (!state.quests.length) {
     tbody.innerHTML = `<tr><td colspan="7" class="empty">Няма активни куестове.</td></tr>`;
     return;
   }
-  tbody.innerHTML = quests.map((q, i) => `
+  tbody.innerHTML = state.quests.map((q, i) => `
     <tr class="quest-row" data-idx="${i}">
       <td><span class="drag-handle">☰</span></td>
       <td>
@@ -233,25 +226,25 @@ function renderQuests() {
     tr.addEventListener('click', e => {
       if (e.target.closest('button, .drag-handle')) return;
       const idx = +tr.dataset.idx;
-      const wasExpanded = expandedQuestIdx === idx;
+      const wasExpanded = state.expandedQuestIdx === idx;
       tbody.querySelectorAll('tr.quest-expanded').forEach(r => r.classList.remove('quest-expanded'));
-      expandedQuestIdx = wasExpanded ? null : idx;
+      state.expandedQuestIdx = wasExpanded ? null : idx;
       if (!wasExpanded) tr.classList.add('quest-expanded');
     });
   });
 
-  if (expandedQuestIdx !== null) {
-    const r = tbody.querySelector(`tr[data-idx="${expandedQuestIdx}"]`);
+  if (state.expandedQuestIdx !== null) {
+    const r = tbody.querySelector(`tr[data-idx="${state.expandedQuestIdx}"]`);
     if (r) r.classList.add('quest-expanded');
   }
 
-  initSortable('questBody', quests, saveQuests);
+  initSortable('questBody', state.quests, saveQuests);
 }
 
 // ─── QUEST MODAL ─────────────────────────────────────────────
 window.openQuestModal = function(idx = null) {
-  editingQuestIdx = idx;
-  const q = idx !== null ? quests[idx] : null;
+  state.editingQuestIdx = idx;
+  const q = idx !== null ? state.quests[idx] : null;
   document.getElementById('questModalTitle').textContent = q ? 'Редактирай куест' : 'Добави куест';
   document.getElementById('qName').value   = q?.name   || '';
   document.getElementById('qStatus').value = q?.status || 'Активен';
@@ -276,36 +269,36 @@ window.saveQuest = async function() {
     reward: document.getElementById('qReward').value.trim(),
     note:   document.getElementById('qNote').value.trim(),
   };
-  if (editingQuestIdx !== null) quests.splice(editingQuestIdx, 1);
-  quests.unshift(q);
+  if (state.editingQuestIdx !== null) state.quests.splice(state.editingQuestIdx, 1);
+  state.quests.unshift(q);
   closeQuestModal();
   renderQuests();
   await saveQuests();
 };
 
 window.cycleStatus = async function(i) {
-  const q = quests.splice(i, 1)[0];
+  const q = state.quests.splice(i, 1)[0];
   q.status = NEXT_STATUS[q.status] || 'Активен';
-  quests.unshift(q);
+  state.quests.unshift(q);
   renderQuests();
   await saveQuests();
 };
 
 window.deleteQuest = async function(i) {
-  if (!confirm(`Изтрий куест "${quests[i].name}"?`)) return;
-  quests.splice(i, 1);
+  if (!confirm(`Изтрий куест "${state.quests[i].name}"?`)) return;
+  state.quests.splice(i, 1);
   renderQuests();
   await saveQuests();
 };
 
 async function saveQuests() {
-  savingQuests = true;
+  state.savingQuests = true;
   syncMsg('Saving…', 'saving');
   try {
-    await setDoc(QUESTS_DOC, { list: quests });
+    await setDoc(QUESTS_DOC, { list: state.quests });
     syncMsg('● Saved', 'saved');
   } finally {
-    savingQuests = false;
+    state.savingQuests = false;
   }
 }
 
@@ -348,19 +341,19 @@ function esc(s) {
 
 // ─── REAL-TIME LISTENERS ────────────────────────────────────
 onSnapshot(GOLD_DOC, snap => {
-  gold = snap.exists() ? snap.data() : { pp:0, gp:0, sp:0, cp:0 };
+  state.gold = snap.exists() ? snap.data() : { pp:0, gp:0, sp:0, cp:0 };
   renderGold();
 });
 
 onSnapshot(ITEMS_DOC, snap => {
-  if (saving) return;
-  items = snap.exists() ? (snap.data().list || []) : [];
+  if (state.saving) return;
+  state.items = snap.exists() ? (snap.data().list || []) : [];
   renderItems();
 });
 
 onSnapshot(QUESTS_DOC, snap => {
-  if (savingQuests) return;
-  quests = snap.exists() ? (snap.data().list || []) : [];
+  if (state.savingQuests) return;
+  state.quests = snap.exists() ? (snap.data().list || []) : [];
   renderQuests();
   document.getElementById('syncStatus').textContent = 'Live sync ✓';
   syncMsg('● live', 'saved');
@@ -369,7 +362,7 @@ onSnapshot(QUESTS_DOC, snap => {
 
 // Export / Import
 window.exportData = function () {
-  const bundle = { version: 1, exportedAt: new Date().toISOString(), gold, items, quests };
+  const bundle = { version: 1, exportedAt: new Date().toISOString(), gold: state.gold, items: state.items, quests: state.quests };
   const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -413,5 +406,5 @@ btnInstall.addEventListener('click', async () => {
 window.addEventListener('appinstalled', () => btnInstall.classList.add('hidden'));
 
 export { spendGold, renderGold, coinInputs, clearCoinInputs, renderItems, renderQuests, saveItems, saveQuests, initSortable, esc, syncMsg, BADGE, NEXT_STATUS };
-export const getState = () => ({ gold, items, quests });
-export function setState(s) { if (s.gold !== undefined) gold = s.gold; if (s.items !== undefined) items = s.items; if (s.quests !== undefined) quests = s.quests; }
+export const getState = () => ({ gold: state.gold, items: state.items, quests: state.quests });
+export function setState(s) { if (s.gold !== undefined) state.gold = s.gold; if (s.items !== undefined) state.items = s.items; if (s.quests !== undefined) state.quests = s.quests; }
