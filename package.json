@@ -5,10 +5,13 @@
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:report": "playwright show-report",
-    "serve": "http-server . -p 45279 -c-1"
+    "serve": "http-server . -p 45279 -c-1",
+    "test:unit": "vitest run"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "jsdom": "^29.1.1",
+    "vitest": "^4.1.10"
   }
 }
