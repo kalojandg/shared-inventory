@@ -25,4 +25,25 @@ function initSortable(tbodyId, arr, saveFn) {
   });
 }
 
-export { esc, syncMsg, initSortable };
+// ─── TABS ───────────────────────────────────────────────────
+function initTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+}
+
+// ─── MODAL BACKDROPS ────────────────────────────────────────
+function initModalBackdrops() {
+  ['itemModal','questModal'].forEach(id => {
+    document.getElementById(id).addEventListener('click', e => {
+      if (e.target.id === id) document.getElementById(id).classList.remove('open');
+    });
+  });
+}
+
+export { esc, syncMsg, initSortable, initTabs, initModalBackdrops };

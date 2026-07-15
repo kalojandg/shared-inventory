@@ -1,4 +1,6 @@
 import { state } from './state.js';
+import { syncMsg } from './ui.js';
+import { GOLD_DOC, setDoc } from './firebase.js';
 
 // ─── GOLD PURE FUNCTION (borrow-down) ───────────────────────
 function spendGold(current, cost) {
@@ -35,4 +37,30 @@ function clearCoinInputs() {
   ['inPP','inGP','inSP','inCP'].forEach(id => document.getElementById(id).value = '');
 }
 
-export { spendGold, renderGold, coinInputs, clearCoinInputs };
+// ─── GOLD HANDLERS (gain / spend) ───────────────────────────
+async function handleGain() {
+  const amt = coinInputs();
+  const next = { pp: state.gold.pp+amt.pp, gp: state.gold.gp+amt.gp, sp: state.gold.sp+amt.sp, cp: state.gold.cp+amt.cp };
+  clearCoinInputs();
+  state.gold = next;
+  renderGold();
+  syncMsg('Saving…', 'saving');
+  await setDoc(GOLD_DOC, next);
+  syncMsg('● Saved', 'saved');
+}
+
+async function handleSpend() {
+  const cost = coinInputs();
+  const result = spendGold(state.gold, cost);
+  const errEl = document.getElementById('goldError');
+  if (!result) { errEl.classList.add('visible'); return; }
+  errEl.classList.remove('visible');
+  clearCoinInputs();
+  state.gold = result;
+  renderGold();
+  syncMsg('Saving…', 'saving');
+  await setDoc(GOLD_DOC, result);
+  syncMsg('● Saved', 'saved');
+}
+
+export { spendGold, renderGold, coinInputs, clearCoinInputs, handleGain, handleSpend };
