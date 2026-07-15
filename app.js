@@ -4,6 +4,11 @@ import {
 } from './modules/firebase.js';
 import { state } from './modules/state.js';
 import { spendGold, renderGold, coinInputs, clearCoinInputs } from './modules/gold.js';
+import { esc, syncMsg, initSortable } from './modules/ui.js';
+import {
+  renderItems, saveItems,
+  openItemModal, closeItemModal, editItem, saveItem, deleteItem
+} from './modules/items.js';
 
 // ─── CONFIG ────────────────────────────────────────────────
 const PLAYERS = ['Калоян', 'Игор', 'Валентин', 'Петър'];
@@ -11,12 +16,7 @@ const PLAYERS = ['Калоян', 'Игор', 'Валентин', 'Петър'];
 // ─── LOCAL STATE ────────────────────────────────────────────
 // Mutable app state lives in modules/state.js (state.gold/items/quests/…)
 
-// ─── SYNC INDICATOR ─────────────────────────────────────────
-function syncMsg(msg, cls) {
-  const el = document.getElementById('sync');
-  el.textContent = msg;
-  el.className = 'sync ' + (cls || '');
-}
+// ─── SYNC INDICATOR (moved to modules/ui.js) ────────────────
 
 // ─── GOLD (pure logic + UI moved to modules/gold.js) ────────
 
@@ -52,107 +52,12 @@ PLAYERS.forEach(p => {
   document.getElementById('iCarrier').appendChild(opt);
 });
 
-// ─── ITEMS RENDER ───────────────────────────────────────────
-function renderItems() {
-  const tbody = document.getElementById('invBody');
-  if (!state.items.length) {
-    tbody.innerHTML = `<tr><td colspan="8" class="empty">Инвентарът е празен.</td></tr>`;
-    document.getElementById('invFooter').textContent = '';
-    return;
-  }
-  tbody.innerHTML = state.items.map((it, i) => `
-    <tr class="item-row" data-idx="${i}">
-      <td><span class="drag-handle">☰</span></td>
-      <td><strong>${esc(it.name)}</strong><br><small style="color:var(--muted)">${esc(it.cat||'')}</small></td>
-      <td>${it.qty ?? 1}</td>
-      <td>${it.weight ?? 0} lb</td>
-      <td>${it.value ?? 0} gp</td>
-      <td>${esc(it.carrier||'Party')}</td>
-      <td><div class="item-note-cell">${esc(it.note||'')}</div></td>
-      <td><div class="tbl-actions">
-        <button class="btn-ghost btn-sm" onclick="editItem(${i})">✏</button>
-        <button class="btn-danger btn-sm" onclick="deleteItem(${i})">🗑</button>
-      </div></td>
-    </tr>`).join('');
-
-  tbody.querySelectorAll('tr[data-idx]').forEach(tr => {
-    tr.addEventListener('click', e => {
-      if (e.target.closest('button, .drag-handle')) return;
-      const idx = +tr.dataset.idx;
-      const wasExpanded = state.expandedItemIdx === idx;
-      tbody.querySelectorAll('tr.item-expanded').forEach(r => r.classList.remove('item-expanded'));
-      state.expandedItemIdx = wasExpanded ? null : idx;
-      if (!wasExpanded) tr.classList.add('item-expanded');
-    });
-  });
-
-  if (state.expandedItemIdx !== null) {
-    const r = tbody.querySelector(`tr[data-idx="${state.expandedItemIdx}"]`);
-    if (r) r.classList.add('item-expanded');
-  }
-
-  const totalW = state.items.reduce((s, it) => s + (+it.weight||0)*(+it.qty||1), 0);
-  const totalV = state.items.reduce((s, it) => s + (+it.value||0)*(+it.qty||1), 0);
-  document.getElementById('invFooter').textContent =
-    `Общо: ${totalW.toFixed(1)} lb  |  ${totalV.toFixed(2)} gp`;
-
-  initSortable('invBody', state.items, saveItems);
-}
-
-// ─── ITEM MODAL ─────────────────────────────────────────────
-window.openItemModal = function(idx = null) {
-  state.editingItemIdx = idx;
-  const it = idx !== null ? state.items[idx] : null;
-  document.getElementById('itemModalTitle').textContent = it ? 'Редактирай предмет' : 'Добави предмет';
-  document.getElementById('iName').value    = it?.name    || '';
-  document.getElementById('iCat').value     = it?.cat     || 'Разно';
-  document.getElementById('iQty').value     = it?.qty     ?? 1;
-  document.getElementById('iWeight').value  = it?.weight  ?? 0;
-  document.getElementById('iValue').value   = it?.value   ?? 0;
-  document.getElementById('iCarrier').value = it?.carrier || 'Party';
-  document.getElementById('iNote').value    = it?.note    || '';
-  document.getElementById('itemModal').classList.add('open');
-  document.getElementById('iName').focus();
-};
-window.closeItemModal = () => document.getElementById('itemModal').classList.remove('open');
-window.editItem = i => openItemModal(i);
-
-window.saveItem = async function() {
-  const name = document.getElementById('iName').value.trim();
-  if (!name) { document.getElementById('iName').focus(); return; }
-  const item = {
-    name,
-    cat:     document.getElementById('iCat').value,
-    qty:     +document.getElementById('iQty').value   || 1,
-    weight:  +document.getElementById('iWeight').value|| 0,
-    value:   +document.getElementById('iValue').value || 0,
-    carrier: document.getElementById('iCarrier').value,
-    note:    document.getElementById('iNote').value.trim(),
-  };
-  if (state.editingItemIdx !== null) state.items.splice(state.editingItemIdx, 1);
-  state.items.unshift(item);
-  closeItemModal();
-  renderItems();
-  await saveItems();
-};
-
-window.deleteItem = async function(i) {
-  if (!confirm(`Изтрий "${state.items[i].name}"?`)) return;
-  state.items.splice(i, 1);
-  renderItems();
-  await saveItems();
-};
-
-async function saveItems() {
-  state.saving = true;
-  syncMsg('Saving…', 'saving');
-  try {
-    await setDoc(ITEMS_DOC, { list: state.items });
-    syncMsg('● Saved', 'saved');
-  } finally {
-    state.saving = false;
-  }
-}
+// ─── ITEMS (render + modal + save/delete moved to modules/items.js) ──
+window.openItemModal  = openItemModal;
+window.closeItemModal = closeItemModal;
+window.editItem       = editItem;
+window.saveItem       = saveItem;
+window.deleteItem     = deleteItem;
 
 // ─── QUESTS RENDER ──────────────────────────────────────────
 const BADGE = {
@@ -270,21 +175,6 @@ async function saveQuests() {
   }
 }
 
-// ─── DRAG & DROP ────────────────────────────────────────────
-function initSortable(tbodyId, arr, saveFn) {
-  const el = document.getElementById(tbodyId);
-  if (el._sortable) el._sortable.destroy();
-  el._sortable = new Sortable(el, {
-    handle: '.drag-handle',
-    animation: 150,
-    onEnd(evt) {
-      const moved = arr.splice(evt.oldIndex, 1)[0];
-      arr.splice(evt.newIndex, 0, moved);
-      saveFn();
-    }
-  });
-}
-
 // ─── TABS ───────────────────────────────────────────────────
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -301,11 +191,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     if (e.target.id === id) document.getElementById(id).classList.remove('open');
   });
 });
-
-// ─── ESCAPE HELPER ──────────────────────────────────────────
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
 
 // ─── REAL-TIME LISTENERS ────────────────────────────────────
 onSnapshot(GOLD_DOC, snap => {
@@ -373,7 +258,9 @@ btnInstall.addEventListener('click', async () => {
 });
 window.addEventListener('appinstalled', () => btnInstall.classList.add('hidden'));
 
+// ─── FACADE RE-EXPORTS ──────────────────────────────────────
 export { spendGold, renderGold, coinInputs, clearCoinInputs } from './modules/gold.js';
-export { renderItems, renderQuests, saveItems, saveQuests, initSortable, esc, syncMsg, BADGE, NEXT_STATUS };
+export { esc, syncMsg, initSortable } from './modules/ui.js';
+export { renderItems, saveItems, renderQuests, saveQuests, BADGE, NEXT_STATUS };
 export const getState = () => ({ gold: state.gold, items: state.items, quests: state.quests });
 export function setState(s) { if (s.gold !== undefined) state.gold = s.gold; if (s.items !== undefined) state.items = s.items; if (s.quests !== undefined) state.quests = s.quests; }
