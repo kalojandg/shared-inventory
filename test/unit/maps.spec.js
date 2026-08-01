@@ -115,6 +115,59 @@ describe('maps — static world map link', () => {
   });
 });
 
+describe('maps — per-row preview button', () => {
+  const twoMaps = [
+    { id: 'a', shortDesc: 'A', details: 'da' },
+    { id: 'b', shortDesc: 'B', details: 'db' },
+  ];
+
+  it('renders a 🔍 preview button first in .tbl-actions, before ✏', async () => {
+    await bootApp({ maps: twoMaps });
+    const row0 = document.getElementById('mapBody').querySelector('tr[data-idx="0"]');
+    const btns = row0.querySelectorAll('.tbl-actions button');
+    expect(btns[0].textContent).toBe('🔍');
+    expect(btns[1].textContent).toBe('✏');
+  });
+
+  it('clicking the 🔍 button does not toggle the accordion', async () => {
+    await bootApp({ maps: twoMaps });
+    const row0 = document.getElementById('mapBody').querySelector('tr[data-idx="0"]');
+    const btn = row0.querySelector('.tbl-actions button'); // the 🔍 button
+    // Inline onclick can't resolve globals in jsdom's realm — drop it; the click
+    // still bubbles to the row listener with a <button> as target (the guard).
+    btn.removeAttribute('onclick');
+
+    btn.click();
+
+    expect(row0.classList.contains('map-expanded')).toBe(false);
+  });
+});
+
+describe('maps — previewMap (lazy image, no modal)', () => {
+  it('opens the fullscreen viewer with the freshly fetched image', async () => {
+    const { fs } = await bootApp({ maps: [{ id: 'a', shortDesc: 'A', details: 'da' }] });
+    fs.__setDocData('maps/a', { image: 'data:image/png;base64,AAA' });
+
+    await window.previewMap(0);
+
+    const overlay = document.getElementById('mapViewer');
+    expect(overlay).toBeTruthy();
+    expect(overlay.style.display).toBe('flex');
+    expect(overlay.querySelector('img').getAttribute('src')).toBe('data:image/png;base64,AAA');
+    // does NOT open the edit modal
+    expect(document.getElementById('mapModal').classList.contains('open')).toBe(false);
+  });
+
+  it('does not open the viewer when the map has no image doc', async () => {
+    await bootApp({ maps: [{ id: 'a', shortDesc: 'A', details: 'da' }] });
+
+    await window.previewMap(0);
+
+    expect(document.getElementById('mapViewer')).toBeNull();
+    expect(document.getElementById('sync').textContent).toContain('Няма снимка');
+  });
+});
+
 describe('maps — snapshot echo guard', () => {
   it('ignores an incoming maps/index snapshot while savingMaps is true', async () => {
     const { fs } = await bootApp({ maps: [{ id: 'a', shortDesc: 'A', details: 'da' }] });

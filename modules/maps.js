@@ -25,6 +25,7 @@ function renderMaps() {
       <td><strong class="map-short">${esc(m.shortDesc)}</strong></td>
       <td><div class="map-details">${esc(m.details || '')}</div></td>
       <td><div class="tbl-actions">
+        <button class="btn-ghost btn-sm" onclick="previewMap(${i})">🔍</button>
         <button class="btn-ghost btn-sm" onclick="editMap(${i})">✏</button>
         <button class="btn-danger btn-sm" onclick="deleteMap(${i})">🗑</button>
       </div></td>
@@ -181,6 +182,22 @@ async function saveMap() {
   await saveMapsIndex();
 }
 
+// Preview a row's map fullscreen WITHOUT entering edit mode (saves table space
+// and does not touch state.editingMapIdx). The image is fetched fresh every
+// press — same as the edit preview, no cache — since it is not in the index.
+async function previewMap(i) {
+  const m = state.maps[i];
+  if (!m) return;
+  syncMsg('Зареждане…', 'saving');
+  const snap = await getDoc(mapImageDoc(m.id));
+  if (snap.exists() && snap.data() && snap.data().image) {
+    openViewer(snap.data().image);
+    syncMsg('● live', 'saved');
+  } else {
+    syncMsg('Няма снимка за тази карта', '');
+  }
+}
+
 async function deleteMap(i) {
   const m = state.maps[i];
   if (!confirm(`Изтрий картата "${m.shortDesc}"?`)) return;
@@ -203,6 +220,6 @@ if (mapPreviewEl) {
 
 export {
   renderMaps, saveMapsIndex,
-  openMapModal, closeMapModal, editMap, saveMap, deleteMap,
+  openMapModal, closeMapModal, editMap, saveMap, deleteMap, previewMap,
   handleMapFile, handleMapPaste,
 };

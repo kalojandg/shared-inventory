@@ -95,6 +95,47 @@ describe('viewer overlay (DOM)', () => {
     expect(overlay.style.display).toBe('none');
   });
 
+  const scaleOf = (img) => parseFloat(img.style.transform.match(/scale\(([^)]+)\)/)[1]);
+
+  it('exposes visible +/- zoom buttons in the overlay', () => {
+    openViewer('data:image/png;base64,AAAA');
+    const overlay = document.getElementById('mapViewer');
+    expect(overlay.querySelector('.viewer-zoom-in')).toBeTruthy();
+    expect(overlay.querySelector('.viewer-zoom-out')).toBeTruthy();
+  });
+
+  it('clicking + zooms in and clicking - zooms back out', () => {
+    openViewer('data:image/png;base64,AAAA');
+    const overlay = document.getElementById('mapViewer');
+    const img = overlay.querySelector('img');
+
+    overlay.querySelector('.viewer-zoom-in').click();
+    const zoomed = scaleOf(img);
+    expect(zoomed).toBeGreaterThan(1);
+
+    overlay.querySelector('.viewer-zoom-out').click();
+    expect(scaleOf(img)).toBeLessThan(zoomed);
+  });
+
+  it('clicking - at scale 1 stays clamped at 1', () => {
+    openViewer('data:image/png;base64,AAAA');
+    const overlay = document.getElementById('mapViewer');
+    const img = overlay.querySelector('img');
+
+    overlay.querySelector('.viewer-zoom-out').click();
+    expect(scaleOf(img)).toBe(1);
+  });
+
+  it('repeated + never exceeds scale 8', () => {
+    openViewer('data:image/png;base64,AAAA');
+    const overlay = document.getElementById('mapViewer');
+    const img = overlay.querySelector('img');
+    const zoomIn = overlay.querySelector('.viewer-zoom-in');
+
+    for (let i = 0; i < 20; i++) zoomIn.click();
+    expect(scaleOf(img)).toBe(8);
+  });
+
   it('double-click resets the transform to scale 1', () => {
     openViewer('data:image/png;base64,AAAA');
     const overlay = document.getElementById('mapViewer');
