@@ -37,6 +37,13 @@ maps/index    →  { list: [ { id: uuid, shortDesc: string, details: string, cre
 maps/<uuid>   →  { image: string }   // base64 data URL (compressed)
 ```
 
+## Допълнения (след първия run — таскове 460, 470)
+
+- **Статичен линк към картата на света** — над бутона „+ Добави карта“, външен `<a target="_blank" rel="noopener">` към
+  `https://totalwarwarhammer.fandom.com/wiki/Map:Immortal_Empires_Factions` (пълната Immortal Empires карта). Чист markup, без JS.
+- **Превю бутон 🔍 на всеки ред** — отваря САМО снимката във fullscreen viewer-а (ленив `getDoc`, без кеш), без да минава през едит диалога. Пести място в таблицата и клик.
+- **Лупички ➕/➖ във viewer-а** — видими zoom бутони (долу-център, едри touch таргети): на таблета wheel няма, а pinch не е очевиден за всички; центърът на зуума е средата на екрана, клампът [1,8] идва от `zoomAt`.
+
 ## Ръчна стъпка ПРЕДИ първия запис (собственика, не агент)
 
 Firestore е schema-less — доковете `maps/index` и `maps/<uuid>` се създават сами при първия запис, нищо не се мигрира. НО: провери в **Firebase Console → Firestore → Rules**, че записът в колекция `maps` е позволен. Ако правилата whitelist-ват само `inventory` и `quests`, добави аналогично правило за `match /maps/{doc}` — иначе save-ът от приложението ще бъде отказан (permission-denied). 2 минути работа, агентите нямат достъп до конзолата.
