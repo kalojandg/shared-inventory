@@ -94,6 +94,27 @@ describe('maps — accordion', () => {
   });
 });
 
+describe('maps — static world map link', () => {
+  const WORLD_URL = 'https://totalwarwarhammer.fandom.com/wiki/Map:Immortal_Empires_Factions';
+
+  it('renders a static external link to the full world map', async () => {
+    await bootApp({ maps: [] });
+    const link = document.querySelector('#tab-maps a.map-world-link');
+    expect(link).not.toBeNull();
+    expect(link.getAttribute('href')).toBe(WORLD_URL);
+    expect(link.getAttribute('target')).toBe('_blank');
+    expect(link.getAttribute('rel')).toContain('noopener');
+  });
+
+  it('places the world map link before the .controls add button in DOM order', async () => {
+    await bootApp({ maps: [] });
+    const link = document.querySelector('#tab-maps a.map-world-link');
+    const controls = document.querySelector('#tab-maps .controls');
+    const pos = link.compareDocumentPosition(controls);
+    expect(pos & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+});
+
 describe('maps — snapshot echo guard', () => {
   it('ignores an incoming maps/index snapshot while savingMaps is true', async () => {
     const { fs } = await bootApp({ maps: [{ id: 'a', shortDesc: 'A', details: 'da' }] });
