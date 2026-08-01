@@ -195,6 +195,14 @@
     @media (max-width: 540px) {
       .coin-inputs { grid-template-columns: repeat(2, 1fr); }
       .coin-inputs .btn-gain, .coin-inputs .btn-spend { grid-column: span 1; }
-      tbody td:nth-child(4), thead th:nth-child(4),
-      tbody td:nth-child(5), thead th:nth-child(5) { display: none; }
+      /* Скрий тежест/стойност (инвентар) и дадено от/награда (куестове) на
+         телефон. САМО за тези таблици — в maps 4-та колона са бутоните! */
+      #invTable td:nth-child(4), #invTable th:nth-child(4),
+      #invTable td:nth-child(5), #invTable th:nth-child(5),
+      #questTable td:nth-child(4), #questTable th:nth-child(4),
+      #questTable td:nth-child(5), #questTable th:nth-child(5) { display: none; }
+      /* Maps в портрет: тесни описателни колони, бутоните винаги на екрана. */
+      #mapTable td, #mapTable th { padding: 9px 6px; }
+      #mapTable .map-details { max-width: 110px; }
+      #mapTable .tbl-actions { gap: 4px; }
     }
