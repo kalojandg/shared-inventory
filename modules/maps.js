@@ -1,6 +1,10 @@
 import { state } from './state.js';
-import { MAPS_INDEX_DOC, setDoc } from './firebase.js';
+import { MAPS_INDEX_DOC, mapImageDoc, setDoc, deleteDoc, getDoc } from './firebase.js';
 import { esc, syncMsg, initSortable } from './ui.js';
+import { blobToDataUrl, needsCompression, compressImage } from './image.js';
+
+// The image (data URL) staged in the modal, awaiting save. null → unchanged.
+let pendingImage = null;
 
 // ─── MAPS RENDER ────────────────────────────────────────────
 // The table shows ONLY the two descriptions (short + details) with an
@@ -59,10 +63,137 @@ async function saveMapsIndex() {
 }
 
 // ─── MAP MODAL ──────────────────────────────────────────────
-// Minimal stubs for this task; the real dialog (file upload / paste /
-// Firestore persistence) lands in task 430.
-function openMapModal(idx = null) {}
-function editMap(i) { openMapModal(i); }
-function deleteMap(i) {}
+// Two inputs feed one pipeline: a <input type="file"> and Ctrl+V paste. Both
+// descriptions are required. The image is stored in its OWN maps/<id> doc
+// (1MB/doc limit) while the metadata rides in maps/index.
+function showMapError(msg) {
+  const el = document.getElementById('mMapError');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+function clearMapError() {
+  const el = document.getElementById('mMapError');
+  el.textContent = '';
+  el.classList.remove('visible');
+}
+function showPreview(dataUrl) {
+  const img = document.getElementById('mPreview');
+  img.src = dataUrl;
+  img.classList.remove('hidden');
+}
 
-export { renderMaps, saveMapsIndex, openMapModal, editMap, deleteMap };
+// blob (file or paste) → data URL, compressing ONLY when it exceeds the limit.
+// A second, more aggressive pass follows; if that is still too big it is an
+// error and pendingImage stays null (save blocked).
+async function processImageBlob(blob) {
+  clearMapError();
+  let dataUrl = await blobToDataUrl(blob);
+  if (needsCompression(dataUrl.length)) {
+    dataUrl = await compressImage(blob);
+    if (needsCompression(dataUrl.length)) {
+      dataUrl = await compressImage(blob, { maxDim: 1200, quality: 0.6 });
+      if (needsCompression(dataUrl.length)) {
+        pendingImage = null;
+        showMapError('Снимката е твърде голяма и след компресия.');
+        return;
+      }
+    }
+  }
+  pendingImage = dataUrl;
+  showPreview(dataUrl);
+}
+
+async function handleMapFile(e) {
+  const blob = e.target.files && e.target.files[0];
+  if (!blob) return;
+  await processImageBlob(blob);
+}
+
+// Active only while the modal is open (paste is a document-level listener).
+async function handleMapPaste(e) {
+  if (!document.getElementById('mapModal').classList.contains('open')) return;
+  const items = e.clipboardData && e.clipboardData.items;
+  if (!items) return;
+  const imgItem = [...items].find(it => it.type && it.type.startsWith('image/'));
+  if (!imgItem) return;
+  const blob = imgItem.getAsFile();
+  if (!blob) return;
+  if (typeof e.preventDefault === 'function') e.preventDefault();
+  await processImageBlob(blob);
+}
+
+async function openMapModal(idx = null) {
+  state.editingMapIdx = idx;
+  pendingImage = null;
+  clearMapError();
+  const m = idx !== null ? state.maps[idx] : null;
+  document.getElementById('mapModalTitle').textContent = m ? 'Редактирай карта' : 'Добави карта';
+  document.getElementById('mShort').value   = m?.shortDesc || '';
+  document.getElementById('mDetails').value = m?.details   || '';
+  document.getElementById('mFile').value = '';
+  const img = document.getElementById('mPreview');
+  img.src = '';
+  img.classList.add('hidden');
+  document.getElementById('mapModal').classList.add('open');
+  document.getElementById('mShort').focus();
+  // Edit: load the image lazily (it is NOT in the index snapshot).
+  if (m) {
+    img.alt = 'Зареждане…';
+    const snap = await getDoc(mapImageDoc(m.id));
+    img.alt = 'Преглед на картата';
+    if (snap.exists() && snap.data() && snap.data().image) {
+      img.src = snap.data().image;
+      img.classList.remove('hidden');
+    }
+  }
+}
+function closeMapModal() { document.getElementById('mapModal').classList.remove('open'); }
+function editMap(i) { return openMapModal(i); }
+
+async function saveMap() {
+  const shortDesc = document.getElementById('mShort').value.trim();
+  const details   = document.getElementById('mDetails').value.trim();
+  clearMapError();
+  if (!shortDesc) { document.getElementById('mShort').focus(); return; }
+  if (!details)   { document.getElementById('mDetails').focus(); return; }
+  const editing  = state.editingMapIdx !== null;
+  const existing = editing ? state.maps[state.editingMapIdx] : null;
+  if (!editing && !pendingImage) {
+    showMapError('Добави снимка на картата.');
+    return;
+  }
+  const id = existing ? existing.id : crypto.randomUUID();
+  // The image doc is written only when a new/changed image is staged.
+  if (pendingImage) await setDoc(mapImageDoc(id), { image: pendingImage });
+  const meta = {
+    id,
+    shortDesc,
+    details,
+    createdAt: existing ? existing.createdAt : new Date().toISOString(),
+  };
+  if (editing) state.maps.splice(state.editingMapIdx, 1);
+  state.maps.unshift(meta); // edited/new map goes to the top
+  state.editingMapIdx = null;
+  pendingImage = null;
+  closeMapModal();
+  renderMaps();
+  await saveMapsIndex();
+}
+
+async function deleteMap(i) {
+  const m = state.maps[i];
+  if (!confirm(`Изтрий картата "${m.shortDesc}"?`)) return;
+  await deleteDoc(mapImageDoc(m.id));
+  state.maps.splice(i, 1);
+  renderMaps();
+  await saveMapsIndex();
+}
+
+// Ctrl+V anywhere pastes into the open modal (guarded inside the handler).
+document.addEventListener('paste', handleMapPaste);
+
+export {
+  renderMaps, saveMapsIndex,
+  openMapModal, closeMapModal, editMap, saveMap, deleteMap,
+  handleMapFile, handleMapPaste,
+};

@@ -175,6 +175,26 @@
   </div>
 </div>
 
+<!-- ══════════════════════ MAP MODAL ══════════════════════ -->
+<div class="modal" id="mapModal">
+  <div class="modal-card">
+    <div class="modal-title" id="mapModalTitle">Добави карта</div>
+    <div class="field"><label>Кратко описание *</label><input id="mShort" type="text" placeholder="Зоната на изток, в джунглата…"></div>
+    <div class="field"><label>Детайли *</label><textarea id="mDetails" placeholder="Селището на дървесните елфи…"></textarea></div>
+    <div class="field">
+      <label>Снимка *</label>
+      <input type="file" id="mFile" accept="image/*" onchange="handleMapFile(event)">
+      <div class="field-hint">…или Ctrl+V скрийншот направо тук</div>
+    </div>
+    <img id="mPreview" class="map-preview hidden" alt="Преглед на картата">
+    <div class="gold-error" id="mMapError"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeMapModal()">Отказ</button>
+      <button class="btn-primary" onclick="saveMap()">Запази</button>
+    </div>
+  </div>
+</div>
+
 <div class="sync" id="sync">●  live</div>
 
 <script>
