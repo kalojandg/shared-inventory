@@ -14,7 +14,8 @@ import {
   openQuestModal, closeQuestModal, editQuest, saveQuest, cycleStatus, deleteQuest
 } from './modules/quests.js';
 import {
-  renderMaps, saveMapsIndex, openMapModal, editMap, deleteMap
+  renderMaps, saveMapsIndex,
+  openMapModal, closeMapModal, editMap, saveMap, deleteMap, handleMapFile
 } from './modules/maps.js';
 
 // ─── CONFIG ────────────────────────────────────────────────
@@ -53,8 +54,11 @@ window.deleteQuest     = deleteQuest;
 
 // ─── MAPS (render + modal wiring in modules/maps.js) ─────────
 window.openMapModal    = openMapModal;
+window.closeMapModal   = closeMapModal;
 window.editMap         = editMap;
+window.saveMap         = saveMap;
 window.deleteMap       = deleteMap;
+window.handleMapFile   = handleMapFile;
 
 // ─── TABS (wiring moved to modules/ui.js) ───────────────────
 initTabs();

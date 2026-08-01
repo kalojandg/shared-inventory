@@ -174,6 +174,11 @@
     }
     tr.map-expanded .map-details { white-space: pre-wrap; }
 
+    /* Map modal preview + file hint */
+    .map-preview { max-width: 100%; max-height: 200px; cursor: zoom-in; border-radius: 8px; margin-top: 6px; }
+    .map-preview.hidden { display: none; }
+    .field-hint { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+
     @media (max-width: 540px) {
       .coin-inputs { grid-template-columns: repeat(2, 1fr); }
       .coin-inputs .btn-gain, .coin-inputs .btn-spend { grid-column: span 1; }
