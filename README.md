@@ -13,19 +13,28 @@ app.js              — тънък оркестратор (facade)
 modules/            — приложната логика, разделена по област
   firebase.js       — firebaseConfig, init, db, GOLD_DOC/ITEMS_DOC/QUESTS_DOC,
                       re-export на ползваните firestore функции (CDN import)
-  state.js          — споделеният mutable state (gold, items, quests, editing/expanded флагове)
+  state.js          — споделеният mutable state (gold, items, quests, maps, editing/expanded флагове)
   gold.js           — spendGold, renderGold, coinInputs, clearCoinInputs, handleGain, handleSpend
   items.js          — renderItems, item modal, saveItem, deleteItem, saveItems
   quests.js         — BADGE, NEXT_STATUS, renderQuests, quest modal, saveQuest, cycleStatus, deleteQuest, saveQuests
+  maps.js           — renderMaps, map modal (file upload + Ctrl+V paste), saveMap, deleteMap, saveMapsIndex
+  image.js          — MAX_IMAGE_BYTES, needsCompression, blobToDataUrl, fitDimensions, compressImage (client-side)
+  viewer.js         — fullscreen map viewer: clampScale/zoomAt (чиста геометрия) + pointer pan/pinch + wheel zoom
   ui.js             — syncMsg, esc, initSortable, tabs + modal backdrop wiring
 sw.js               — service worker
 manifest.json       — PWA manifest
 ```
 
 `app.js` държи само оркестрацията: `window.*` assignment-ите за inline onclick
-handler-ите, populate на carrier select-а, трите `onSnapshot` listener-а,
-export/import и PWA install бутона. Накрая re-export-ва публичното API на
-модулите, за да остане стабилна фасада за unit тестовете.
+handler-ите, populate на carrier select-а, четирите `onSnapshot` listener-а
+(gold, items, quests, maps), export/import и PWA install бутона. Накрая
+re-export-ва публичното API на модулите, за да остане стабилна фасада за unit
+тестовете.
+
+Табът „Карти" (`tab-maps`) държи метаданните на картите в `maps/index`, а всяка
+снимка — в собствен `maps/<id>` документ (1 MB/док лимит; индексът не тегли
+снимки при листване). Снимките се компресират client-side само при нужда (над
+~900 KB data URL). Bundle-ът за export/import (v1) НЕ включва картите.
 
 ### CDN imports (умишлено)
 
