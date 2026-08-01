@@ -2,6 +2,7 @@ import { state } from './state.js';
 import { MAPS_INDEX_DOC, mapImageDoc, setDoc, deleteDoc, getDoc } from './firebase.js';
 import { esc, syncMsg, initSortable } from './ui.js';
 import { blobToDataUrl, needsCompression, compressImage } from './image.js';
+import { openViewer } from './viewer.js';
 
 // The image (data URL) staged in the modal, awaiting save. null → unchanged.
 let pendingImage = null;
@@ -191,6 +192,14 @@ async function deleteMap(i) {
 
 // Ctrl+V anywhere pastes into the open modal (guarded inside the handler).
 document.addEventListener('paste', handleMapPaste);
+
+// Clicking the modal preview opens the image fullscreen (zoom/pan). #mPreview is
+// static markup, so the listener is wired once at module init; it reads the
+// current data URL (the staged pendingImage, else the loaded preview src).
+const mapPreviewEl = document.getElementById('mPreview');
+if (mapPreviewEl) {
+  mapPreviewEl.addEventListener('click', () => openViewer(pendingImage || mapPreviewEl.src));
+}
 
 export {
   renderMaps, saveMapsIndex,

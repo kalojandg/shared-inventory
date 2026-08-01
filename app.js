@@ -144,5 +144,6 @@ export { esc, syncMsg, initSortable } from './modules/ui.js';
 export { renderItems, saveItems };
 export { BADGE, NEXT_STATUS, renderQuests, saveQuests } from './modules/quests.js';
 export { renderMaps, saveMapsIndex } from './modules/maps.js';
+export { zoomAt, clampScale, openViewer, closeViewer } from './modules/viewer.js';
 export const getState = () => ({ gold: state.gold, items: state.items, quests: state.quests, maps: state.maps });
 export function setState(s) { if (s.gold !== undefined) state.gold = s.gold; if (s.items !== undefined) state.items = s.items; if (s.quests !== undefined) state.quests = s.quests; if (s.maps !== undefined) state.maps = s.maps; }
