@@ -57,9 +57,20 @@ describe('zoomAt (pure geometry)', () => {
 describe('viewer overlay (DOM)', () => {
   beforeEach(() => {
     // Reset the DOM between cases; the module keeps its single overlay across
-    // the whole file, mirroring production (created once, reused).
+    // the whole file, mirroring production (created once, reused). Reopening
+    // also clears any active magnifier mode.
     closeViewer();
   });
+
+  // A "tap": pointerdown + pointerup on the same spot. The viewer must decide
+  // close/zoom from POINTER events — after setPointerCapture the browser
+  // retargets the derived click to the overlay, so click targets lie.
+  const tap = (el, x = 0, y = 0) => {
+    el.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, clientX: x, clientY: y }));
+    el.dispatchEvent(new MouseEvent('pointerup', { bubbles: true, clientX: x, clientY: y }));
+  };
+
+  const scaleOf = (img) => parseFloat(img.style.transform.match(/scale\(([^)]+)\)/)[1]);
 
   it('openViewer inserts #mapViewer, shows it and sets the image src', () => {
     openViewer('data:image/png;base64,AAAA');
@@ -88,52 +99,119 @@ describe('viewer overlay (DOM)', () => {
     expect(document.getElementById('mapViewer').style.display).toBe('none');
   });
 
-  it('clicking the backdrop (overlay itself) hides it', () => {
+  it('a tap on the backdrop (no magnifier active) hides it', () => {
     openViewer('data:image/png;base64,AAAA');
     const overlay = document.getElementById('mapViewer');
-    overlay.dispatchEvent(new MouseEvent('click', { bubbles: true })); // target === overlay
+    tap(overlay);
     expect(overlay.style.display).toBe('none');
   });
 
-  const scaleOf = (img) => parseFloat(img.style.transform.match(/scale\(([^)]+)\)/)[1]);
+  it('a tap on the image does NOT close the viewer', () => {
+    openViewer('data:image/png;base64,AAAA');
+    const overlay = document.getElementById('mapViewer');
+    tap(overlay.querySelector('img'), 40, 40);
+    expect(overlay.style.display).toBe('flex');
+  });
 
-  it('exposes visible +/- zoom buttons in the overlay', () => {
+  it('a drag on the backdrop (pan) does not close the viewer', () => {
+    openViewer('data:image/png;base64,AAAA');
+    const overlay = document.getElementById('mapViewer');
+    overlay.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, clientX: 0, clientY: 0 }));
+    overlay.dispatchEvent(new MouseEvent('pointermove', { bubbles: true, clientX: 60, clientY: 60 }));
+    overlay.dispatchEvent(new MouseEvent('pointerup', { bubbles: true, clientX: 60, clientY: 60 }));
+    expect(overlay.style.display).toBe('flex');
+  });
+
+  it('REGRESSION: a retargeted click on the overlay (pointer capture) must not close it', () => {
+    openViewer('data:image/png;base64,AAAA');
+    const overlay = document.getElementById('mapViewer');
+    // This is what the browser dispatches after setPointerCapture — target is
+    // the overlay even though the user pressed a button or the image.
+    overlay.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(overlay.style.display).toBe('flex');
+  });
+
+  it('exposes visible +/- magnifier buttons in the overlay', () => {
     openViewer('data:image/png;base64,AAAA');
     const overlay = document.getElementById('mapViewer');
     expect(overlay.querySelector('.viewer-zoom-in')).toBeTruthy();
     expect(overlay.querySelector('.viewer-zoom-out')).toBeTruthy();
   });
 
-  it('clicking + zooms in and clicking - zooms back out', () => {
+  it('the magnifier buttons toggle and are mutually exclusive', () => {
+    openViewer('data:image/png;base64,AAAA');
+    const overlay = document.getElementById('mapViewer');
+    const zin = overlay.querySelector('.viewer-zoom-in');
+    const zout = overlay.querySelector('.viewer-zoom-out');
+
+    zin.click();
+    expect(zin.classList.contains('active')).toBe(true);
+    expect(zout.classList.contains('active')).toBe(false);
+
+    zout.click();
+    expect(zin.classList.contains('active')).toBe(false);
+    expect(zout.classList.contains('active')).toBe(true);
+
+    zout.click(); // toggle off
+    expect(zout.classList.contains('active')).toBe(false);
+  });
+
+  it('with 🔍+ active, a tap zooms in anchored at the tapped point', () => {
     openViewer('data:image/png;base64,AAAA');
     const overlay = document.getElementById('mapViewer');
     const img = overlay.querySelector('img');
 
     overlay.querySelector('.viewer-zoom-in').click();
-    const zoomed = scaleOf(img);
-    expect(zoomed).toBeGreaterThan(1);
+    tap(img, 100, 100);
 
-    overlay.querySelector('.viewer-zoom-out').click();
-    expect(scaleOf(img)).toBeLessThan(zoomed);
+    expect(scaleOf(img)).toBeCloseTo(1.4, 10);
+    // zoomAt(scale 1 → 1.4, cx=cy=100): tx = 100 - 100 * 1.4 = -40.
+    expect(img.style.transform).toContain('translate(-40px, -40px)');
+    expect(overlay.style.display).toBe('flex'); // и НЕ се затваря
   });
 
-  it('clicking - at scale 1 stays clamped at 1', () => {
+  it('with 🔍+ active, a tap on the backdrop zooms instead of closing', () => {
+    openViewer('data:image/png;base64,AAAA');
+    const overlay = document.getElementById('mapViewer');
+
+    overlay.querySelector('.viewer-zoom-in').click();
+    tap(overlay, 50, 50);
+
+    expect(overlay.style.display).toBe('flex');
+    expect(scaleOf(overlay.querySelector('img'))).toBeGreaterThan(1);
+  });
+
+  it('with 🔍− active at scale 1 a tap stays clamped at 1', () => {
     openViewer('data:image/png;base64,AAAA');
     const overlay = document.getElementById('mapViewer');
     const img = overlay.querySelector('img');
 
     overlay.querySelector('.viewer-zoom-out').click();
+    tap(img, 30, 30);
     expect(scaleOf(img)).toBe(1);
   });
 
-  it('repeated + never exceeds scale 8', () => {
+  it('repeated 🔍+ taps never exceed scale 8', () => {
     openViewer('data:image/png;base64,AAAA');
     const overlay = document.getElementById('mapViewer');
     const img = overlay.querySelector('img');
-    const zoomIn = overlay.querySelector('.viewer-zoom-in');
 
-    for (let i = 0; i < 20; i++) zoomIn.click();
+    overlay.querySelector('.viewer-zoom-in').click();
+    for (let i = 0; i < 20; i++) tap(img, 10, 10);
     expect(scaleOf(img)).toBe(8);
+  });
+
+  it('reopening the viewer clears the magnifier mode', () => {
+    openViewer('data:image/png;base64,AAAA');
+    let overlay = document.getElementById('mapViewer');
+    overlay.querySelector('.viewer-zoom-in').click();
+    closeViewer();
+
+    openViewer('data:image/png;base64,BBBB');
+    overlay = document.getElementById('mapViewer');
+    expect(overlay.querySelector('.viewer-zoom-in').classList.contains('active')).toBe(false);
+    tap(overlay); // без активна лупичка backdrop тапът пак затваря
+    expect(overlay.style.display).toBe('none');
   });
 
   it('double-click resets the transform to scale 1', () => {

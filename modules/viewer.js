@@ -30,9 +30,21 @@ export function zoomAt(view, factor, cx, cy) {
 }
 
 // ─── DOM / EVENT LAYER (thin) ───────────────────────────────
+// ⚠ Не разчитай на 'click' върху overlay-а: след setPointerCapture браузърът
+// ПРЕНАСОЧВА производния click към capture елемента, така че всеки клик
+// (снимка, лупичка) пристига с target === overlay. Затова tap/close/zoom
+// решенията се взимат ИЗЦЯЛО от pointer събитията: pointerdown помни къде и
+// върху какво е започнал жестът, pointerup без движение = tap.
+const ZOOM_STEP = 1.4;
+const TAP_SLOP = 8; // px — повече движение = drag (pan), не tap
+
 let overlay = null;
 let viewerImg = null;
+let zoomInBtn = null;
+let zoomOutBtn = null;
 let view = { scale: 1, tx: 0, ty: 0 };
+let zoomMode = null; // null | 'in' | 'out' — активната „лупичка“
+let gesture = null;  // { target, x, y, moved } — текущият single-pointer жест
 const pointers = new Map(); // pointerId → { x, y } (overlay-relative)
 
 function applyTransform() {
@@ -44,14 +56,17 @@ function resetView() {
   applyTransform();
 }
 
-// Zoom towards the centre of the overlay (the +/- buttons — a laptop has the
-// wheel but a tablet does not, and pinch is not obvious to everyone). In jsdom
-// getBoundingClientRect is 0×0 → centre is (0,0), which the transform still
-// honours; clampScale inside zoomAt keeps min/max clicks from moving the scale.
-function zoomButton(factor) {
-  const r = overlay.getBoundingClientRect();
-  view = zoomAt(view, factor, r.width / 2, r.height / 2);
-  applyTransform();
+// The +/- buttons are magnifier TOGGLES: arm a mode, then tap the exact spot
+// on the map to zoom there (wheel/pinch/dblclick keep working regardless).
+function setZoomMode(mode) {
+  zoomMode = zoomMode === mode ? null : mode;
+  zoomInBtn.classList.toggle('active', zoomMode === 'in');
+  zoomOutBtn.classList.toggle('active', zoomMode === 'out');
+  overlay.style.cursor = zoomMode === 'in' ? 'zoom-in' : zoomMode === 'out' ? 'zoom-out' : '';
+}
+
+function clearZoomMode() {
+  if (overlay && zoomMode) setZoomMode(zoomMode); // toggle off
 }
 
 function relPoint(e) {
@@ -75,7 +90,15 @@ function onWheel(e) {
 }
 
 function onPointerDown(e) {
+  // Бутоните (✕, лупичките) си имат собствени click handler-и — без capture
+  // върху тях, иначе click-ът им се пренасочва към overlay-а и се губи.
+  if (e.target.closest && e.target.closest('button')) return;
   pointers.set(e.pointerId, relPoint(e));
+  if (pointers.size === 1) {
+    gesture = { target: e.target, x: e.clientX, y: e.clientY, moved: false };
+  } else if (gesture) {
+    gesture.moved = true; // втори пръст → pinch, никога tap
+  }
   if (typeof overlay.setPointerCapture === 'function') {
     try { overlay.setPointerCapture(e.pointerId); } catch { /* jsdom / detached */ }
   }
@@ -83,6 +106,10 @@ function onPointerDown(e) {
 
 function onPointerMove(e) {
   if (!pointers.has(e.pointerId)) return;
+  if (gesture && !gesture.moved &&
+      Math.hypot(e.clientX - gesture.x, e.clientY - gesture.y) > TAP_SLOP) {
+    gesture.moved = true;
+  }
   const cur = relPoint(e);
   if (pointers.size === 1) {
     // Single pointer → pan.
@@ -110,6 +137,19 @@ function onPointerUp(e) {
   if (typeof overlay.releasePointerCapture === 'function') {
     try { overlay.releasePointerCapture(e.pointerId); } catch { /* noop */ }
   }
+  if (pointers.size) return; // изчакай целия жест (pinch)
+  const g = gesture;
+  gesture = null;
+  if (!g || g.moved || e.type === 'pointercancel') return;
+  // Истински tap: с активна лупичка → зуум точно там; иначе tap върху голия
+  // фон затваря (tap върху снимката не прави нищо).
+  if (zoomMode) {
+    const { x, y } = relPoint(e);
+    view = zoomAt(view, zoomMode === 'in' ? ZOOM_STEP : 1 / ZOOM_STEP, x, y);
+    applyTransform();
+  } else if (g.target === overlay) {
+    closeViewer();
+  }
 }
 
 function ensureOverlay() {
@@ -129,26 +169,26 @@ function ensureOverlay() {
   closeBtn.addEventListener('click', closeViewer);
   overlay.appendChild(closeBtn);
 
-  // Big touch-friendly +/- zoom buttons, bottom-centre. stopPropagation so a
-  // click on them never reaches the backdrop-close listener on the overlay.
+  // Big touch-friendly magnifier TOGGLES, bottom-centre: arm 🔍+/🔍−, then tap
+  // the exact spot on the map to zoom there.
   const zoomBar = document.createElement('div');
   zoomBar.className = 'viewer-zoom-bar';
-  const zoomOut = document.createElement('button');
-  zoomOut.className = 'viewer-zoom viewer-zoom-out';
-  zoomOut.textContent = '➖';
-  zoomOut.setAttribute('aria-label', 'Отдалечи');
-  zoomOut.addEventListener('click', e => { e.stopPropagation(); zoomButton(1 / 1.4); });
-  const zoomIn = document.createElement('button');
-  zoomIn.className = 'viewer-zoom viewer-zoom-in';
-  zoomIn.textContent = '➕';
-  zoomIn.setAttribute('aria-label', 'Приближи');
-  zoomIn.addEventListener('click', e => { e.stopPropagation(); zoomButton(1.4); });
-  zoomBar.appendChild(zoomOut);
-  zoomBar.appendChild(zoomIn);
+  zoomOutBtn = document.createElement('button');
+  zoomOutBtn.className = 'viewer-zoom viewer-zoom-out';
+  zoomOutBtn.textContent = '➖';
+  zoomOutBtn.setAttribute('aria-label', 'Лупа: отдалечаване');
+  zoomOutBtn.addEventListener('click', () => setZoomMode('out'));
+  zoomInBtn = document.createElement('button');
+  zoomInBtn.className = 'viewer-zoom viewer-zoom-in';
+  zoomInBtn.textContent = '➕';
+  zoomInBtn.setAttribute('aria-label', 'Лупа: приближаване');
+  zoomInBtn.addEventListener('click', () => setZoomMode('in'));
+  zoomBar.appendChild(zoomOutBtn);
+  zoomBar.appendChild(zoomInBtn);
   overlay.appendChild(zoomBar);
 
-  // Click on the backdrop (overlay itself, not the image or button) closes.
-  overlay.addEventListener('click', e => { if (e.target === overlay) closeViewer(); });
+  // ⚠ НЯМА click listener за затваряне — заради pointer capture click-ът лъже
+  // за target-а си (виж горния коментар); затварянето е в onPointerUp.
   // Double-click resets the view.
   overlay.addEventListener('dblclick', resetView);
   // Wheel zoom towards the cursor (preventDefault so the page doesn't scroll).
@@ -162,12 +202,14 @@ function ensureOverlay() {
   document.body.appendChild(overlay);
 }
 
-// Open the overlay on `src`, resetting zoom/pan. Reuses the single overlay.
+// Open the overlay on `src`, resetting zoom/pan and any armed magnifier.
+// Reuses the single overlay.
 export function openViewer(src) {
   if (!src) return;
   ensureOverlay();
   viewerImg.src = src;
   resetView();
+  clearZoomMode();
   overlay.style.display = 'flex';
   document.addEventListener('keydown', onKeydown);
 }
@@ -176,5 +218,6 @@ export function closeViewer() {
   if (!overlay) return;
   overlay.style.display = 'none';
   pointers.clear();
+  gesture = null;
   document.removeEventListener('keydown', onKeydown);
 }
