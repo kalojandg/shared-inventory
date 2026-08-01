@@ -22,5 +22,9 @@ const GOLD_DOC  = doc(db, 'inventory', 'gold');
 const ITEMS_DOC = doc(db, 'inventory', 'items');
 const QUESTS_DOC = doc(db, 'quests', 'items');
 
-export { db, GOLD_DOC, ITEMS_DOC, QUESTS_DOC };
+// ─── MAPS (§9) — index doc holds metadata; one doc per image ─
+const MAPS_INDEX_DOC = doc(db, 'maps', 'index');
+function mapImageDoc(id) { return doc(db, 'maps', id); }
+
+export { db, GOLD_DOC, ITEMS_DOC, QUESTS_DOC, MAPS_INDEX_DOC, mapImageDoc };
 export { doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc, getDoc };
