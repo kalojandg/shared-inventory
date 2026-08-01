@@ -160,6 +160,10 @@ function ensureOverlay() {
 
   viewerImg = document.createElement('img');
   viewerImg.alt = 'Карта';
+  // Без native HTML5 image drag — на десктоп той краде pointer събитията
+  // (pointercancel) и мишката влачи „духче“ вместо да панва.
+  viewerImg.draggable = false;
+  viewerImg.addEventListener('dragstart', e => e.preventDefault());
   overlay.appendChild(viewerImg);
 
   const closeBtn = document.createElement('button');

@@ -186,7 +186,7 @@
 
     /* Fullscreen map viewer overlay (created once by modules/viewer.js) */
     #mapViewer { position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 200; display: flex; align-items: center; justify-content: center; overflow: hidden; touch-action: none; }
-    #mapViewer img { transform-origin: 0 0; max-width: 100%; max-height: 100%; will-change: transform; user-select: none; -webkit-user-select: none; }
+    #mapViewer img { transform-origin: 0 0; max-width: 100%; max-height: 100%; will-change: transform; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; }
     #mapViewer .viewer-close { position: fixed; top: 12px; right: 16px; z-index: 201; background: rgba(0,0,0,.5); color: #fff; border: none; border-radius: 8px; font-size: 1.4rem; line-height: 1; padding: 8px 12px; cursor: pointer; }
     #mapViewer .viewer-zoom-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 201; display: flex; gap: 14px; }
     #mapViewer .viewer-zoom { min-width: 44px; min-height: 44px; background: rgba(0,0,0,.5); color: #fff; border: 2px solid transparent; border-radius: 10px; font-size: 1.3rem; line-height: 1; cursor: pointer; }

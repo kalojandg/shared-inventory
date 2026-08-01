@@ -214,6 +214,16 @@ describe('viewer overlay (DOM)', () => {
     expect(overlay.style.display).toBe('none');
   });
 
+  it('the image is not natively draggable (mouse drag must pan, not ghost-drag)', () => {
+    openViewer('data:image/png;base64,AAAA');
+    const img = document.getElementById('mapViewer').querySelector('img');
+    expect(img.draggable).toBe(false);
+    // Native HTML5 image drag cancels our pointer events on desktop — the
+    // dragstart must be suppressed so the mouse pan keeps working.
+    const started = img.dispatchEvent(new Event('dragstart', { bubbles: true, cancelable: true }));
+    expect(started).toBe(false); // false → preventDefault() was called
+  });
+
   it('double-click resets the transform to scale 1', () => {
     openViewer('data:image/png;base64,AAAA');
     const overlay = document.getElementById('mapViewer');
