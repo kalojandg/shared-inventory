@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0b0c12; --surface: #13141f; --surface2: #1c1e2e;
+      --border: #2a2d42; --text: #e6e6ef; --muted: #8888aa;
+      --danger: #e05252; --success: #3ecf8e; --warning: #f6c90e;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 15px; padding: 16px; }
+    button { cursor: pointer; border: none; border-radius: 6px; padding: 7px 16px; font-size: 0.9rem; }
+    .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-sm { padding: 4px 10px; font-size: 0.8rem; }
+    .tbl-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { background: var(--surface2); color: var(--muted); font-size: 0.78rem; padding: 9px 10px; text-align: left; }
+    tbody tr { border-top: 1px solid var(--border); }
+    tbody td { padding: 9px 10px; vertical-align: middle; font-size: 0.9rem; }
+    .drag-handle { cursor: grab; color: var(--muted); user-select: none; padding: 0 4px; }
+    .tbl-actions { display: flex; gap: 6px; }
+
+    /* Maps accordion — 1:1 from styles.css */
+    .map-row { cursor: pointer; }
+    .map-short {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
+    }
+    .map-details {
+      color: var(--muted);
+      font-size: 0.85em;
+      max-width: 260px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
+    }
+    tr.map-expanded .map-short,
+    tr.map-expanded .map-details {
+      display: block;
+      overflow: visible;
+    }
+    tr.map-expanded .map-details { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="tbl-wrap">
+    <table id="mapTable">
+      <thead><tr>
+        <th></th><th>Карта</th><th>Детайли</th><th></th>
+      </tr></thead>
+      <tbody id="mapBody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    function esc(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Map 0: short short/details. Map 1: long short/details (3+ lines, so the
+    // ellipsis has something to clamp when collapsed).
+    let maps = [
+      {
+        shortDesc: 'Кратко описание.',
+        details: 'Кратки детайли.'
+      },
+      {
+        shortDesc: 'Зоната на изток, в дълбоката джунгла отвъд реката, където дърветата растат толкова нагъсто, че слънцето едва пробива до земята и въздухът тежи от влага и мирис на гнило.',
+        details: 'Селището на дървесните елфи е скрито високо в короните на древните дъбове, свързано с висящи мостове от лиани. Пазят входа с отровни стрели и капани. Само посветен може да намери пътеката нагоре, а непознатите изчезват безследно в мъглата под клоните.'
+      }
+    ];
+
+    let expandedMapIdx = null;
+
+    // Mirrors renderMaps in modules/maps.js (accordion logic identical).
+    function renderMaps() {
+      const tbody = document.getElementById('mapBody');
+      if (!maps.length) {
+        tbody.innerHTML = `<tr><td colspan="4" class="empty">Няма качени карти.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = maps.map((m, i) => `
+        <tr class="map-row" data-idx="${i}">
+          <td><span class="drag-handle">☰</span></td>
+          <td><strong class="map-short">${esc(m.shortDesc)}</strong></td>
+          <td><div class="map-details">${esc(m.details || '')}</div></td>
+          <td><div class="tbl-actions">
+            <button class="btn-ghost btn-sm" onclick="editMap(${i})">✏</button>
+            <button class="btn-danger btn-sm" onclick="deleteMap(${i})">🗑</button>
+          </div></td>
+        </tr>`).join('');
+
+      tbody.querySelectorAll('tr[data-idx]').forEach(tr => {
+        tr.addEventListener('click', e => {
+          if (e.target.closest('button, .drag-handle')) return;
+          const idx = +tr.dataset.idx;
+          const wasExpanded = expandedMapIdx === idx;
+          tbody.querySelectorAll('tr.map-expanded').forEach(r => r.classList.remove('map-expanded'));
+          expandedMapIdx = wasExpanded ? null : idx;
+          if (!wasExpanded) tr.classList.add('map-expanded');
+        });
+      });
+
+      if (expandedMapIdx !== null) {
+        const r = tbody.querySelector(`tr[data-idx="${expandedMapIdx}"]`);
+        if (r) r.classList.add('map-expanded');
+      }
+    }
+
+    function editMap(i) { /* stub for fixture */ }
+
+    function deleteMap(i) {
+      if (!confirm(`Изтрий картата "${maps[i].shortDesc}"?`)) return;
+      maps.splice(i, 1);
+      renderMaps();
+    }
+
+    renderMaps();
+
+    window._maps = maps;
+    window._renderMaps = renderMaps;
+  </script>
+</body>
+</html>
