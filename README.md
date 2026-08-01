@@ -17,9 +17,9 @@ modules/            — приложната логика, разделена п
   gold.js           — spendGold, renderGold, coinInputs, clearCoinInputs, handleGain, handleSpend
   items.js          — renderItems, item modal, saveItem, deleteItem, saveItems
   quests.js         — BADGE, NEXT_STATUS, renderQuests, quest modal, saveQuest, cycleStatus, deleteQuest, saveQuests
-  maps.js           — renderMaps, map modal (file upload + Ctrl+V paste), saveMap, deleteMap, saveMapsIndex
+  maps.js           — renderMaps, map modal (file upload + Ctrl+V paste), saveMap, deleteMap, saveMapsIndex, previewMap (🔍 ред → viewer)
   image.js          — MAX_IMAGE_BYTES, needsCompression, blobToDataUrl, fitDimensions, compressImage (client-side)
-  viewer.js         — fullscreen map viewer: clampScale/zoomAt (чиста геометрия) + pointer pan/pinch + wheel zoom
+  viewer.js         — fullscreen map viewer: clampScale/zoomAt (чиста геометрия) + pointer pan/pinch + wheel zoom + ➕/➖ бутони
   ui.js             — syncMsg, esc, initSortable, tabs + modal backdrop wiring
 sw.js               — service worker
 manifest.json       — PWA manifest
@@ -34,7 +34,10 @@ re-export-ва публичното API на модулите, за да ост�
 Табът „Карти" (`tab-maps`) държи метаданните на картите в `maps/index`, а всяка
 снимка — в собствен `maps/<id>` документ (1 MB/док лимит; индексът не тегли
 снимки при листване). Снимките се компресират client-side само при нужда (над
-~900 KB data URL). Bundle-ът за export/import (v1) НЕ включва картите.
+~900 KB data URL). Над бутона за добавяне стои статичен линк към пълната карта
+на света (Immortal Empires), а всеки ред има 🔍 бутон, който отваря снимката
+директно във fullscreen viewer-а (с ➕/➖ zoom бутони за таблета). Bundle-ът за
+export/import (v1) НЕ включва картите.
 
 ### CDN imports (умишлено)
 
