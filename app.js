@@ -15,7 +15,7 @@ import {
 } from './modules/quests.js';
 import {
   renderMaps, saveMapsIndex,
-  openMapModal, closeMapModal, editMap, saveMap, deleteMap, handleMapFile
+  openMapModal, closeMapModal, editMap, saveMap, deleteMap, previewMap, handleMapFile
 } from './modules/maps.js';
 
 // ─── CONFIG ────────────────────────────────────────────────
@@ -58,6 +58,7 @@ window.closeMapModal   = closeMapModal;
 window.editMap         = editMap;
 window.saveMap         = saveMap;
 window.deleteMap       = deleteMap;
+window.previewMap      = previewMap;
 window.handleMapFile   = handleMapFile;
 
 // ─── TABS (wiring moved to modules/ui.js) ───────────────────
@@ -143,7 +144,7 @@ export { spendGold, renderGold, coinInputs, clearCoinInputs, handleGain, handleS
 export { esc, syncMsg, initSortable } from './modules/ui.js';
 export { renderItems, saveItems };
 export { BADGE, NEXT_STATUS, renderQuests, saveQuests } from './modules/quests.js';
-export { renderMaps, saveMapsIndex } from './modules/maps.js';
+export { renderMaps, saveMapsIndex, previewMap } from './modules/maps.js';
 export { zoomAt, clampScale, openViewer, closeViewer } from './modules/viewer.js';
 export const getState = () => ({ gold: state.gold, items: state.items, quests: state.quests, maps: state.maps });
 export function setState(s) { if (s.gold !== undefined) state.gold = s.gold; if (s.items !== undefined) state.items = s.items; if (s.quests !== undefined) state.quests = s.quests; if (s.maps !== undefined) state.maps = s.maps; }

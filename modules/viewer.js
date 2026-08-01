@@ -44,6 +44,16 @@ function resetView() {
   applyTransform();
 }
 
+// Zoom towards the centre of the overlay (the +/- buttons — a laptop has the
+// wheel but a tablet does not, and pinch is not obvious to everyone). In jsdom
+// getBoundingClientRect is 0×0 → centre is (0,0), which the transform still
+// honours; clampScale inside zoomAt keeps min/max clicks from moving the scale.
+function zoomButton(factor) {
+  const r = overlay.getBoundingClientRect();
+  view = zoomAt(view, factor, r.width / 2, r.height / 2);
+  applyTransform();
+}
+
 function relPoint(e) {
   const r = overlay.getBoundingClientRect();
   return { x: e.clientX - r.left, y: e.clientY - r.top };
@@ -118,6 +128,24 @@ function ensureOverlay() {
   closeBtn.setAttribute('aria-label', 'Затвори');
   closeBtn.addEventListener('click', closeViewer);
   overlay.appendChild(closeBtn);
+
+  // Big touch-friendly +/- zoom buttons, bottom-centre. stopPropagation so a
+  // click on them never reaches the backdrop-close listener on the overlay.
+  const zoomBar = document.createElement('div');
+  zoomBar.className = 'viewer-zoom-bar';
+  const zoomOut = document.createElement('button');
+  zoomOut.className = 'viewer-zoom viewer-zoom-out';
+  zoomOut.textContent = '➖';
+  zoomOut.setAttribute('aria-label', 'Отдалечи');
+  zoomOut.addEventListener('click', e => { e.stopPropagation(); zoomButton(1 / 1.4); });
+  const zoomIn = document.createElement('button');
+  zoomIn.className = 'viewer-zoom viewer-zoom-in';
+  zoomIn.textContent = '➕';
+  zoomIn.setAttribute('aria-label', 'Приближи');
+  zoomIn.addEventListener('click', e => { e.stopPropagation(); zoomButton(1.4); });
+  zoomBar.appendChild(zoomOut);
+  zoomBar.appendChild(zoomIn);
+  overlay.appendChild(zoomBar);
 
   // Click on the backdrop (overlay itself, not the image or button) closes.
   overlay.addEventListener('click', e => { if (e.target === overlay) closeViewer(); });
