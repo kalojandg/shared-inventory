@@ -23,6 +23,7 @@
 <nav class="tab-nav">
   <button class="tab-btn active" data-tab="inventory">Инвентар</button>
   <button class="tab-btn" data-tab="quests">Куестове</button>
+  <button class="tab-btn" data-tab="maps">Карти</button>
 </nav>
 
 <!-- ══════════════════════ INVENTORY TAB ══════════════════════ -->
@@ -92,6 +93,28 @@
         </tr>
       </thead>
       <tbody id="questBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════ MAPS TAB ══════════════════════ -->
+<div id="tab-maps" class="tab">
+
+  <div class="controls">
+    <button class="btn-primary" onclick="openMapModal()">+ Добави карта</button>
+  </div>
+
+  <div class="tbl-wrap">
+    <table id="mapTable">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Карта</th>
+          <th>Детайли</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="mapBody"></tbody>
     </table>
   </div>
 </div>

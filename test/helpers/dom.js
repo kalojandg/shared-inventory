@@ -10,7 +10,7 @@ import { vi } from 'vitest';
 // 4. imports app.js so its top-level code runs (carrier select, listeners, ...)
 // 5. __emit the three docs so the app renders
 // 6. returns { fs } — the firestore mock module, for calls/__emit in the test
-export async function bootApp({ gold = null, items = null, quests = null } = {}) {
+export async function bootApp({ gold = null, items = null, quests = null, maps = null } = {}) {
   // 1. index.html body markup, scripts stripped.
   const html = readFileSync(resolve(process.cwd(), 'index.html'), 'utf-8');
   const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
@@ -38,6 +38,7 @@ export async function bootApp({ gold = null, items = null, quests = null } = {})
   fs.__emit('inventory/gold', gold);
   fs.__emit('inventory/items', items === null ? null : { list: items });
   fs.__emit('quests/items', quests === null ? null : { list: quests });
+  fs.__emit('maps/index', maps === null ? null : { list: maps });
 
   return { fs };
 }
