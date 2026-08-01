@@ -1,5 +1,5 @@
 import {
-  GOLD_DOC, ITEMS_DOC, QUESTS_DOC,
+  GOLD_DOC, ITEMS_DOC, QUESTS_DOC, MAPS_INDEX_DOC,
   onSnapshot, setDoc
 } from './modules/firebase.js';
 import { state } from './modules/state.js';
@@ -13,6 +13,9 @@ import {
   renderQuests,
   openQuestModal, closeQuestModal, editQuest, saveQuest, cycleStatus, deleteQuest
 } from './modules/quests.js';
+import {
+  renderMaps, saveMapsIndex, openMapModal, editMap, deleteMap
+} from './modules/maps.js';
 
 // ─── CONFIG ────────────────────────────────────────────────
 const PLAYERS = ['Калоян', 'Игор', 'Валентин', 'Петър'];
@@ -48,6 +51,11 @@ window.saveQuest       = saveQuest;
 window.cycleStatus     = cycleStatus;
 window.deleteQuest     = deleteQuest;
 
+// ─── MAPS (render + modal wiring in modules/maps.js) ─────────
+window.openMapModal    = openMapModal;
+window.editMap         = editMap;
+window.deleteMap       = deleteMap;
+
 // ─── TABS (wiring moved to modules/ui.js) ───────────────────
 initTabs();
 
@@ -73,6 +81,12 @@ onSnapshot(QUESTS_DOC, snap => {
   document.getElementById('syncStatus').textContent = 'Live sync ✓';
   syncMsg('● live', 'saved');
   window.__appReady = true;
+});
+
+onSnapshot(MAPS_INDEX_DOC, snap => {
+  if (state.savingMaps) return;
+  state.maps = snap.exists() ? (snap.data().list || []) : [];
+  renderMaps();
 });
 
 // Export / Import
@@ -125,5 +139,6 @@ export { spendGold, renderGold, coinInputs, clearCoinInputs, handleGain, handleS
 export { esc, syncMsg, initSortable } from './modules/ui.js';
 export { renderItems, saveItems };
 export { BADGE, NEXT_STATUS, renderQuests, saveQuests } from './modules/quests.js';
-export const getState = () => ({ gold: state.gold, items: state.items, quests: state.quests });
-export function setState(s) { if (s.gold !== undefined) state.gold = s.gold; if (s.items !== undefined) state.items = s.items; if (s.quests !== undefined) state.quests = s.quests; }
+export { renderMaps, saveMapsIndex } from './modules/maps.js';
+export const getState = () => ({ gold: state.gold, items: state.items, quests: state.quests, maps: state.maps });
+export function setState(s) { if (s.gold !== undefined) state.gold = s.gold; if (s.items !== undefined) state.items = s.items; if (s.quests !== undefined) state.quests = s.quests; if (s.maps !== undefined) state.maps = s.maps; }
