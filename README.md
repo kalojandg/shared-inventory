@@ -19,7 +19,7 @@ modules/            — приложната логика, разделена п
   quests.js         — BADGE, NEXT_STATUS, renderQuests, quest modal, saveQuest, cycleStatus, deleteQuest, saveQuests
   maps.js           — renderMaps, map modal (file upload + Ctrl+V paste), saveMap, deleteMap, saveMapsIndex, previewMap (🔍 ред → viewer)
   image.js          — MAX_IMAGE_BYTES, needsCompression, blobToDataUrl, fitDimensions, compressImage (client-side)
-  viewer.js         — fullscreen map viewer: clampScale/zoomAt (чиста геометрия) + pointer pan/pinch + wheel zoom + ➕/➖ бутони
+  viewer.js         — fullscreen map viewer: clampScale/zoomAt (чиста геометрия) + pointer pan/pinch + wheel zoom + ➕/➖ лупички (магнифайър-тоглове)
   ui.js             — syncMsg, esc, initSortable, tabs + modal backdrop wiring
 sw.js               — service worker
 manifest.json       — PWA manifest
