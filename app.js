@@ -1,5 +1,5 @@
 import {
-  GOLD_DOC, ITEMS_DOC, QUESTS_DOC, MAPS_INDEX_DOC,
+  GOLD_DOC, ITEMS_DOC, QUESTS_DOC, MAPS_INDEX_DOC, BASES_DOC,
   onSnapshot, setDoc
 } from './modules/firebase.js';
 import { state } from './modules/state.js';
@@ -17,6 +17,17 @@ import {
   renderMaps, saveMapsIndex,
   openMapModal, closeMapModal, editMap, saveMap, deleteMap, previewMap, handleMapFile
 } from './modules/maps.js';
+import {
+  renderBases, saveBases,
+  openBaseModal, closeBaseModal, saveBase, deleteBase
+} from './modules/bases.js';
+import {
+  renderRoute, openBaseDetail, saveBaseDetail
+} from './modules/base-detail.js';
+import {
+  renderSubTables,
+  openSubModal, closeSubModal, editSub, saveSub, deleteSub
+} from './modules/base-tables.js';
 
 // ─── CONFIG ────────────────────────────────────────────────
 const PLAYERS = ['Калоян', 'Игор', 'Валентин', 'Петър'];
@@ -61,6 +72,19 @@ window.deleteMap       = deleteMap;
 window.previewMap      = previewMap;
 window.handleMapFile   = handleMapFile;
 
+// ─── BASES (list in modules/bases.js, routing in base-detail.js, ──
+//     sub-tables in base-tables.js) ─────────────────────────────
+window.openBaseModal   = openBaseModal;
+window.closeBaseModal  = closeBaseModal;
+window.saveBase        = saveBase;
+window.deleteBase      = deleteBase;
+window.openBaseDetail  = openBaseDetail;
+window.openSubModal    = openSubModal;
+window.closeSubModal   = closeSubModal;
+window.editSub         = editSub;
+window.saveSub         = saveSub;
+window.deleteSub       = deleteSub;
+
 // ─── TABS (wiring moved to modules/ui.js) ───────────────────
 initTabs();
 
@@ -92,6 +116,14 @@ onSnapshot(MAPS_INDEX_DOC, snap => {
   if (state.savingMaps) return;
   state.maps = snap.exists() ? (snap.data().list || []) : [];
   renderMaps();
+});
+
+onSnapshot(BASES_DOC, snap => {
+  if (state.savingBases) return;
+  state.bases = snap.exists() ? (snap.data().list || []) : [];
+  renderBases();
+  renderRoute();     // deep-link support — data arrives after the DOM
+  renderSubTables(); // reflect the current base's sub-tables
 });
 
 // Export / Import
@@ -146,5 +178,8 @@ export { renderItems, saveItems };
 export { BADGE, NEXT_STATUS, renderQuests, saveQuests } from './modules/quests.js';
 export { renderMaps, saveMapsIndex, previewMap } from './modules/maps.js';
 export { zoomAt, clampScale, openViewer, closeViewer } from './modules/viewer.js';
-export const getState = () => ({ gold: state.gold, items: state.items, quests: state.quests, maps: state.maps });
-export function setState(s) { if (s.gold !== undefined) state.gold = s.gold; if (s.items !== undefined) state.items = s.items; if (s.quests !== undefined) state.quests = s.quests; if (s.maps !== undefined) state.maps = s.maps; }
+export { renderBases, saveBases } from './modules/bases.js';
+export { renderRoute, openBaseDetail, saveBaseDetail } from './modules/base-detail.js';
+export { renderSubTables } from './modules/base-tables.js';
+export const getState = () => ({ gold: state.gold, items: state.items, quests: state.quests, maps: state.maps, bases: state.bases });
+export function setState(s) { if (s.gold !== undefined) state.gold = s.gold; if (s.items !== undefined) state.items = s.items; if (s.quests !== undefined) state.quests = s.quests; if (s.maps !== undefined) state.maps = s.maps; if (s.bases !== undefined) state.bases = s.bases; }

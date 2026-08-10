@@ -26,5 +26,8 @@ const QUESTS_DOC = doc(db, 'quests', 'items');
 const MAPS_INDEX_DOC = doc(db, 'maps', 'index');
 function mapImageDoc(id) { return doc(db, 'maps', id); }
 
-export { db, GOLD_DOC, ITEMS_DOC, QUESTS_DOC, MAPS_INDEX_DOC, mapImageDoc };
+// ─── BASES (§10) — a single doc holds the whole list (1 read/snapshot) ─
+const BASES_DOC = doc(db, 'bases', 'index');
+
+export { db, GOLD_DOC, ITEMS_DOC, QUESTS_DOC, MAPS_INDEX_DOC, mapImageDoc, BASES_DOC };
 export { doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc, getDoc };
