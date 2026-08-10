@@ -39,7 +39,7 @@ function initTabs() {
 
 // ─── MODAL BACKDROPS ────────────────────────────────────────
 function initModalBackdrops() {
-  ['itemModal','questModal','mapModal'].forEach(id => {
+  ['itemModal','questModal','mapModal','baseModal','bsModal'].forEach(id => {
     document.getElementById(id).addEventListener('click', e => {
       if (e.target.id === id) document.getElementById(id).classList.remove('open');
     });

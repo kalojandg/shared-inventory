@@ -24,6 +24,7 @@
   <button class="tab-btn active" data-tab="inventory">Инвентар</button>
   <button class="tab-btn" data-tab="quests">Куестове</button>
   <button class="tab-btn" data-tab="maps">Карти</button>
+  <button class="tab-btn" data-tab="bases">Бази</button>
 </nav>
 
 <!-- ══════════════════════ INVENTORY TAB ══════════════════════ -->
@@ -120,6 +121,103 @@
       </thead>
       <tbody id="mapBody"></tbody>
     </table>
+  </div>
+</div>
+
+<!-- ══════════════════════ BASES TAB ══════════════════════ -->
+<div id="tab-bases" class="tab">
+
+  <div class="controls">
+    <button class="btn-primary" onclick="openBaseModal()">+ Добави база</button>
+  </div>
+
+  <div class="tbl-wrap">
+    <table id="baseTable">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Име</th>
+          <th>Локация</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="baseBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════ BASE DETAIL ══════════════════════ -->
+<div id="baseDetail" class="hidden">
+  <button id="btnBaseBack" class="btn-ghost">← Назад</button>
+
+  <div class="field"><label>Име *</label><input id="bdName" type="text" placeholder="Селището…"></div>
+  <div class="field"><label>Локация</label><input id="bdLocation" type="text" placeholder="На брега на реката…"></div>
+  <div class="field"><label>История</label><textarea id="bdHistory" class="base-history"></textarea></div>
+  <button id="btnBaseSave" class="btn-primary">Запази</button>
+
+  <div class="base-section">
+    <h3>Сгради и съоръжения</h3>
+    <div class="controls">
+      <button class="btn-primary" onclick="openSubModal('buildings')">+ Добави</button>
+    </div>
+    <div class="tbl-wrap">
+      <table id="bdBuildingsTable">
+        <thead><tr><th></th><th>Име</th><th>Детайли</th><th></th></tr></thead>
+        <tbody id="bdBuildingsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="base-section">
+    <h3>Население</h3>
+    <div class="controls">
+      <button class="btn-primary" onclick="openSubModal('populace')">+ Добави</button>
+    </div>
+    <div class="tbl-wrap">
+      <table id="bdPopulaceTable">
+        <thead><tr><th></th><th>Име</th><th>Детайли</th><th></th></tr></thead>
+        <tbody id="bdPopulaceBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="base-section">
+    <h3>Продукция</h3>
+    <div class="controls">
+      <button class="btn-primary" onclick="openSubModal('production')">+ Добави</button>
+    </div>
+    <div class="tbl-wrap">
+      <table id="bdProductionTable">
+        <thead><tr><th></th><th>Име</th><th>Детайли</th><th></th></tr></thead>
+        <tbody id="bdProductionBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ BASE MODAL ══════════════════════ -->
+<div class="modal" id="baseModal">
+  <div class="modal-card">
+    <div class="modal-title" id="baseModalTitle">Добави база</div>
+    <div class="field"><label>Име *</label><input id="bName" type="text" placeholder="Селището…"></div>
+    <div class="field"><label>Локация</label><input id="bLocation" type="text" placeholder="На брега на реката…"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeBaseModal()">Отказ</button>
+      <button class="btn-primary" onclick="saveBase()">Запази</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ BASE SUB MODAL ══════════════════════ -->
+<div class="modal" id="bsModal">
+  <div class="modal-card">
+    <div class="modal-title" id="bsModalTitle">Добави</div>
+    <div class="field"><label>Име *</label><input id="bsName" type="text" placeholder="Ковачница / Търговец / Дървесина…"></div>
+    <div class="field"><label>Детайли</label><textarea id="bsDetails"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeSubModal()">Отказ</button>
+      <button class="btn-primary" onclick="saveSub()">Запази</button>
+    </div>
   </div>
 </div>
 
