@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0b0c12; --surface: #13141f; --surface2: #1c1e2e;
+      --border: #2a2d42; --text: #e6e6ef; --muted: #8888aa;
+      --danger: #e05252; --success: #3ecf8e; --warning: #f6c90e;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 15px; padding: 16px; }
+    button { cursor: pointer; border: none; border-radius: 6px; padding: 7px 16px; font-size: 0.9rem; }
+    .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-sm { padding: 4px 10px; font-size: 0.8rem; }
+    .tbl-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { background: var(--surface2); color: var(--muted); font-size: 0.78rem; padding: 9px 10px; text-align: left; }
+    tbody tr { border-top: 1px solid var(--border); }
+    tbody td { padding: 9px 10px; vertical-align: middle; font-size: 0.9rem; }
+    .drag-handle { cursor: grab; color: var(--muted); user-select: none; padding: 0 4px; }
+    .tbl-actions { display: flex; gap: 6px; }
+
+    /* Bases accordion — 1:1 from styles.css */
+    .base-row { cursor: pointer; }
+    .base-location {
+      color: var(--muted);
+      font-size: 0.85em;
+      max-width: 260px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
+    }
+    tr.base-expanded .base-location {
+      display: block;
+      overflow: visible;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="tbl-wrap">
+    <table id="baseTable">
+      <thead><tr>
+        <th></th><th>Име</th><th>Локация</th><th></th>
+      </tr></thead>
+      <tbody id="baseBody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    function esc(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Base 0: short location. Base 1: long location (3+ lines, so the ellipsis
+    // has something to clamp when collapsed).
+    let bases = [
+      {
+        name: 'Крепостта на хълма',
+        location: 'Кратка локация.'
+      },
+      {
+        name: 'Скритото светилище',
+        location: 'Дълбоко в северните планини, отвъд прохода на замръзналите ветрове, където пътеката се вие покрай стръмни пропасти и се губи в мъглата, а древните каменни стражи все още пазят входа към забравените зали под върха, издълбани в самата скала преди хиляди години.'
+      }
+    ];
+
+    let expandedBaseIdx = null;
+
+    // Mirrors renderBases in modules/bases.js (accordion logic identical).
+    function renderBases() {
+      const tbody = document.getElementById('baseBody');
+      if (!bases.length) {
+        tbody.innerHTML = `<tr><td colspan="4" class="empty">Няма добавени бази.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = bases.map((b, i) => `
+        <tr class="base-row" data-idx="${i}">
+          <td><span class="drag-handle">☰</span></td>
+          <td><strong>${esc(b.name)}</strong></td>
+          <td><div class="base-location">${esc(b.location || '')}</div></td>
+          <td><div class="tbl-actions">
+            <button class="btn-ghost btn-sm" onclick="openBaseDetail(${i})">📖</button>
+            <button class="btn-danger btn-sm" onclick="deleteBase(${i})">🗑</button>
+          </div></td>
+        </tr>`).join('');
+
+      tbody.querySelectorAll('tr[data-idx]').forEach(tr => {
+        tr.addEventListener('click', e => {
+          if (e.target.closest('button, .drag-handle')) return;
+          const idx = +tr.dataset.idx;
+          const wasExpanded = expandedBaseIdx === idx;
+          tbody.querySelectorAll('tr.base-expanded').forEach(r => r.classList.remove('base-expanded'));
+          expandedBaseIdx = wasExpanded ? null : idx;
+          if (!wasExpanded) tr.classList.add('base-expanded');
+        });
+      });
+
+      if (expandedBaseIdx !== null) {
+        const r = tbody.querySelector(`tr[data-idx="${expandedBaseIdx}"]`);
+        if (r) r.classList.add('base-expanded');
+      }
+    }
+
+    function openBaseDetail(i) { /* stub for fixture */ }
+
+    function deleteBase(i) {
+      if (!confirm(`Изтрий база "${bases[i].name}"?`)) return;
+      bases.splice(i, 1);
+      renderBases();
+    }
+
+    renderBases();
+
+    window._bases = bases;
+    window._renderBases = renderBases;
+  </script>
+</body>
+</html>
