@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <!-- НАРОЧНО реалният styles.css (не инлайн копие): този спек пази ВИДИМОСТТА
+       при рутиране — класът hidden трябва реално да крие табовете/списъка.
+       Бъгът от първия run беше точно тук: класът се слагаше, но нямаше
+       глобално .hidden правило и детайлът „лепваше" под видимия списък. -->
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<nav class="tab-nav">
+  <button class="tab-btn" data-tab="inventory">Инвентар</button>
+  <button class="tab-btn" data-tab="quests">Куестове</button>
+  <button class="tab-btn" data-tab="maps">Карти</button>
+  <button class="tab-btn active" data-tab="bases">Бази</button>
+</nav>
+
+<div id="tab-inventory" class="tab"></div>
+<div id="tab-quests" class="tab"></div>
+<div id="tab-maps" class="tab"></div>
+
+<div id="tab-bases" class="tab active">
+  <div class="tbl-wrap">
+    <table id="baseTable">
+      <thead><tr><th></th><th>Име</th><th>Локация</th><th></th></tr></thead>
+      <tbody id="baseBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="baseDetail" class="hidden">
+  <button id="btnBaseBack" class="btn-ghost">← Назад</button>
+  <div class="field"><label>Име *</label><input id="bdName" type="text"></div>
+  <div class="field"><label>Локация</label><input id="bdLocation" type="text"></div>
+</div>
+
+<script>
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  const bases = [
+    { id: 'a', name: 'Крепостта на хълма', location: 'Кратка локация.' },
+    { id: 'b', name: 'Скритото светилище', location: 'Дълбоко в северните планини.' },
+  ];
+
+  // Mirrors renderBases in modules/bases.js (row structure identical).
+  function renderBases() {
+    document.getElementById('baseBody').innerHTML = bases.map((b, i) => `
+      <tr class="base-row" data-idx="${i}">
+        <td><span class="drag-handle">☰</span></td>
+        <td><strong>${esc(b.name)}</strong></td>
+        <td><div class="base-location">${esc(b.location)}</div></td>
+        <td><div class="tbl-actions">
+          <button class="btn-ghost btn-sm" onclick="openBaseDetail(${i})">📖</button>
+          <button class="btn-danger btn-sm">🗑</button>
+        </div></td>
+      </tr>`).join('');
+  }
+
+  // ── Mirrors the routing in modules/base-detail.js (class toggling identical) ──
+  function parseHash() {
+    const m = (location.hash || '').match(/^#base\/(.+)$/);
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+
+  function renderRoute() {
+    const id = parseHash();
+    const detail = document.getElementById('baseDetail');
+    const base = id ? bases.find(b => b.id === id) : null;
+
+    if (id && base) {
+      document.querySelector('.tab-nav').classList.add('hidden');
+      document.querySelectorAll('.tab').forEach(t => t.classList.add('hidden'));
+      detail.classList.remove('hidden');
+      document.getElementById('bdName').value = base.name;
+      document.getElementById('bdLocation').value = base.location;
+      return;
+    }
+    if (id && !base) {
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+    detail.classList.add('hidden');
+    document.querySelector('.tab-nav').classList.remove('hidden');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('hidden'));
+  }
+
+  function openBaseDetail(i) {
+    location.hash = '#base/' + bases[i].id;
+    renderRoute();
+  }
+
+  document.getElementById('btnBaseBack').addEventListener('click', () => {
+    location.hash = '';
+    renderRoute();
+  });
+  window.addEventListener('hashchange', renderRoute);
+
+  // Boot mirror: a leftover #base hash (e.g. after F5 in the detail) is
+  // dropped — the page always boots into the tab view.
+  if (parseHash() !== null) {
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+  renderBases();
+  renderRoute();
+</script>
+</body>
+</html>

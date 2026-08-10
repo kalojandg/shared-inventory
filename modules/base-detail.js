@@ -5,9 +5,11 @@ import { saveBases } from './bases.js';
 // Hash routing (#base/<id>) + the editable name/location/history fields live
 // here. #base/<id> shows the detail page for that base; an empty/other hash
 // shows the tabs. renderRoute() is the single transition point — it runs on
-// `hashchange` and on every bases snapshot (deep-link support: the data may
-// arrive after the DOM). The fields are (re)populated ONLY when the route id
-// actually changes, so an incoming snapshot never clobbers what the DM types.
+// `hashchange` and on every bases snapshot. The fields are (re)populated ONLY
+// when the route id actually changes, so an incoming snapshot never clobbers
+// what the DM types. A leftover hash from a previous session is dropped at
+// module init — reload and tab navigation always land on the LIST, never the
+// detail (user decision: the detail is reachable only via 📖).
 
 // The base id whose fields are currently mirrored into the form. Kept in a
 // module var so a same-route re-render (a snapshot echo) leaves the inputs be.
@@ -47,11 +49,10 @@ function renderRoute() {
     return;
   }
 
-  // ── Unknown id: bail if data hasn't arrived yet (deep link on load); once
-  //    the list is populated, clear the stale hash and fall back to the tabs. ──
+  // ── Unknown/deleted id (e.g. removed from another device mid-view):
+  //    drop the hash silently and fall back to the tabs. ──
   if (id && !base) {
-    if (state.bases.length === 0) return;
-    location.hash = '';
+    history.replaceState(null, '', location.pathname + location.search);
   }
 
   // ── Tab view (empty/cleared hash). Only run the leave-detail transition
@@ -94,6 +95,12 @@ async function saveBaseDetail() {
 }
 
 // ─── WIRING (once, at module init — the elements are static in index.html) ──
+// F5 / fresh load with a leftover #base/<id> hash must NOT reopen the detail:
+// the app always boots into the tab view. replaceState (not location.hash='')
+// avoids an extra history entry and a spurious hashchange.
+if (parseHash() !== null) {
+  history.replaceState(null, '', location.pathname + location.search);
+}
 window.addEventListener('hashchange', renderRoute);
 document.getElementById('btnBaseBack')?.addEventListener('click', () => {
   location.hash = '';

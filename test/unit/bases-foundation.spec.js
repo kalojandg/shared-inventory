@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { bootApp } from '../helpers/dom.js';
 
@@ -94,6 +96,17 @@ describe('bases — data layer', () => {
 
     expect(mod.getState().bases.map(b => b.name)).not.toContain('ECHO');
     expect(mod.getState().bases.map(b => b.name)).toEqual(['A']);
+  });
+});
+
+describe('bases — visibility contract (styles.css)', () => {
+  // jsdom не смята CSS, а рутирането крие табовете с клас `hidden` — без
+  // глобално правило детайлът „лепва" ПОД видимия списък (реален бъг от
+  // първия run). Характеризацията пази правилото да не изчезне: .hidden
+  // трябва да крие БЕЗУСЛОВНО (!important, за да бие .tab.active).
+  it('styles.css has a global .hidden utility with display:none !important', () => {
+    const css = readFileSync(resolve(process.cwd(), 'styles.css'), 'utf-8');
+    expect(css).toMatch(/(^|[\s,])\.hidden\s*\{[^}]*display:\s*none\s*!important/m);
   });
 });
 

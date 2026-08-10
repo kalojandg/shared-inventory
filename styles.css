@@ -243,3 +243,10 @@
       #mapTable .map-details { max-width: 110px; }
       #mapTable .tbl-actions { gap: 4px; }
     }
+
+    /* ── Global utility ─────────────────────────────────────
+       .hidden крие БЕЗУСЛОВНО (!important бие .tab.active и всяко друго
+       display правило). Рутирането на базите (base-detail.js) разчита на
+       него, за да скрие .tab-nav/.tab при отворен детайл; ползва го и
+       #btnInstall. */
+    .hidden { display: none !important; }

@@ -71,7 +71,7 @@ describe('bases — detail routing', () => {
     document.removeEventListener('base-route', h);
   });
 
-  it('an unknown id in the hash falls back to the tabs', async () => {
+  it('an unknown id in the hash falls back to the tabs and clears the hash', async () => {
     const { app } = await boot({ bases: mkBases() });
 
     location.hash = '#base/does-not-exist';
@@ -79,6 +79,7 @@ describe('bases — detail routing', () => {
 
     expect(document.getElementById('baseDetail').classList.contains('hidden')).toBe(true);
     expect(document.querySelector('.tab-nav').classList.contains('hidden')).toBe(false);
+    expect(location.hash).toBe('');
   });
 
   it('saveBaseDetail moves the edited base to the top and persists, detail stays open', async () => {
@@ -114,12 +115,13 @@ describe('bases — detail routing', () => {
     expect(document.activeElement).toBe(document.getElementById('bdName'));
   });
 
-  it('deep link: a hash set before boot shows the detail once the snapshot arrives', async () => {
+  it('a stale #base hash from a previous session is dropped on boot — the app lands on the tabs', async () => {
     location.hash = '#base/b';
     await boot({ bases: mkBases() });
 
-    expect(document.getElementById('baseDetail').classList.contains('hidden')).toBe(false);
-    expect(document.getElementById('bdName').value).toBe('Уайтрън');
+    expect(location.hash).toBe('');
+    expect(document.getElementById('baseDetail').classList.contains('hidden')).toBe(true);
+    expect(document.querySelector('.tab-nav').classList.contains('hidden')).toBe(false);
   });
 
   it('an incoming snapshot while the detail is open does not overwrite typed input', async () => {
