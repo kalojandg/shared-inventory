@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { bootApp } from '../helpers/dom.js';
 
 // Detail-page hash routing for the BASES feature (§10, lane bases-detail).
@@ -100,6 +100,36 @@ describe('bases — detail routing', () => {
     expect(last.data.list[0].location).toBe('Ново място');
     expect(last.data.list[0].history).toBe('Нова история');
     expect(document.getElementById('baseDetail').classList.contains('hidden')).toBe(false);
+  });
+
+  it('saveBaseDetail confirms on the button itself: Запазване… → ✓ Записано → Запази', async () => {
+    vi.useFakeTimers();
+    try {
+      const { app } = await boot({ bases: mkBases() });
+      app.openBaseDetail(0);
+      app.renderRoute();
+
+      const btn = document.getElementById('btnBaseSave');
+      const inFlight = app.saveBaseDetail();
+
+      // Докато записът е in-flight: бутонът е заключен и го казва.
+      expect(btn.disabled).toBe(true);
+      expect(btn.textContent).toBe('Запазване…');
+
+      await inFlight;
+
+      // Потвърждението е върху бутона (без toast) и е зелено.
+      expect(btn.disabled).toBe(false);
+      expect(btn.textContent).toBe('✓ Записано');
+      expect(btn.classList.contains('btn-saved')).toBe(true);
+
+      // След ~1.6s се връща в изходно състояние.
+      vi.advanceTimersByTime(1700);
+      expect(btn.textContent).toBe('Запази');
+      expect(btn.classList.contains('btn-saved')).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('saveBaseDetail with an empty name does not persist and focuses #bdName', async () => {

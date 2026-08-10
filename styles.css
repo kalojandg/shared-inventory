@@ -217,6 +217,10 @@
     #baseDetail { max-width: 900px; margin: 0 auto; padding: 16px; }
     #baseDetail.hidden { display: none; }
     #baseDetail .base-history { min-height: 120px; }
+    /* Потвърждение на записване ВЪРХУ бутона (Запази → Запазване… → ✓ Записано):
+       обратната връзка е под палеца, без toast/snackbar слой. */
+    #btnBaseSave:disabled { opacity: .65; cursor: default; }
+    #btnBaseSave.btn-saved { background: var(--success); color: #000; }
     #baseDetail .base-section { margin-top: 22px; }
     #baseDetail .base-section h3 { font-size: 0.9rem; color: var(--accent2); margin-bottom: 8px; }
     #btnBaseSave { margin-top: 4px; }

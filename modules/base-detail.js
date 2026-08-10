@@ -81,6 +81,10 @@ function openBaseDetail(i) {
 
 // Save the edited fields. The anchor is the id, so the detail STAYS open; the
 // edited base is spliced out and unshifted to the top (the saveQuest pattern).
+// Confirmation lives ON the button itself (Запази → Запазване… → ✓ Записано →
+// Запази) — feedback right under the thumb; no toast/snackbar layer.
+let savedTimer = null;
+
 async function saveBaseDetail() {
   const base = state.bases.find(b => b.id === state.currentBaseId);
   if (!base) return;
@@ -91,7 +95,25 @@ async function saveBaseDetail() {
   base.history  = document.getElementById('bdHistory').value.trim();
   const idx = state.bases.indexOf(base);
   if (idx > 0) { state.bases.splice(idx, 1); state.bases.unshift(base); }
-  await saveBases();
+
+  const btn = document.getElementById('btnBaseSave');
+  clearTimeout(savedTimer);
+  btn.disabled = true;
+  btn.textContent = 'Запазване…';
+  try {
+    await saveBases();
+    btn.textContent = '✓ Записано';
+    btn.classList.add('btn-saved');
+    savedTimer = setTimeout(() => {
+      btn.textContent = 'Запази';
+      btn.classList.remove('btn-saved');
+    }, 1600);
+  } catch (e) {
+    btn.textContent = 'Запази';
+    throw e;
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 // ─── WIRING (once, at module init — the elements are static in index.html) ──
