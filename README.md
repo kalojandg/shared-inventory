@@ -13,21 +13,24 @@ app.js              — тънък оркестратор (facade)
 modules/            — приложната логика, разделена по област
   firebase.js       — firebaseConfig, init, db, GOLD_DOC/ITEMS_DOC/QUESTS_DOC,
                       re-export на ползваните firestore функции (CDN import)
-  state.js          — споделеният mutable state (gold, items, quests, maps, editing/expanded флагове)
+  state.js          — споделеният mutable state (gold, items, quests, maps, bases, editing/expanded флагове)
   gold.js           — spendGold, renderGold, coinInputs, clearCoinInputs, handleGain, handleSpend
   items.js          — renderItems, item modal, saveItem, deleteItem, saveItems
   quests.js         — BADGE, NEXT_STATUS, renderQuests, quest modal, saveQuest, cycleStatus, deleteQuest, saveQuests
   maps.js           — renderMaps, map modal (file upload + Ctrl+V paste), saveMap, deleteMap, saveMapsIndex, previewMap (🔍 ред → viewer)
   image.js          — MAX_IMAGE_BYTES, needsCompression, blobToDataUrl, fitDimensions, compressImage (client-side)
   viewer.js         — fullscreen map viewer: clampScale/zoomAt (чиста геометрия) + pointer pan/pinch + wheel zoom + ➕/➖ лупички (магнифайър-тоглове)
+  bases.js          — renderBases, base modal (+ Добави база), saveBase, deleteBase, saveBases (един док за целия списък)
+  base-detail.js    — hash routing (#base/<id>), детайлът с редактируеми име/локация/история (renderRoute, openBaseDetail, saveBaseDetail)
+  base-tables.js    — под-таблиците сгради/население/продукция: renderSubTables + общ под-модал (openSubModal/saveSub/deleteSub)
   ui.js             — syncMsg, esc, initSortable, tabs + modal backdrop wiring
 sw.js               — service worker
 manifest.json       — PWA manifest
 ```
 
 `app.js` държи само оркестрацията: `window.*` assignment-ите за inline onclick
-handler-ите, populate на carrier select-а, четирите `onSnapshot` listener-а
-(gold, items, quests, maps), export/import и PWA install бутона. Накрая
+handler-ите, populate на carrier select-а, петте `onSnapshot` listener-а
+(gold, items, quests, maps, bases), export/import и PWA install бутона. Накрая
 re-export-ва публичното API на модулите, за да остане стабилна фасада за unit
 тестовете.
 
@@ -38,6 +41,14 @@ re-export-ва публичното API на модулите, за да ост�
 на света (Immortal Empires), а всеки ред има 🔍 бутон, който отваря снимката
 директно във fullscreen viewer-а (с ➕/➖ zoom бутони за таблета). Bundle-ът за
 export/import (v1) НЕ включва картите.
+
+Табът „Бази" (`tab-bases`) държи селищата на партито в **един** документ
+`bases/index` (`{ list: [...] }` — 1 read на snapshot). Списъкът дава име +
+локация; 📖 бутон отваря детайлната „страница" през hash routing (`#base/<id>`)
+с редактируеми име/локация/история и три под-таблици — сгради, население и
+продукция (общ под-модал име + детайли). Всяка таблица е акордеон с drag-подредба
+като останалите. Табовете стоят 2×2 на всякакъв екран. Bundle-ът за export/import
+НЕ включва базите (както и картите).
 
 ### CDN imports (умишлено)
 
