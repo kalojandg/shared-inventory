@@ -18,6 +18,7 @@
   <button id="btnInstall" class="btn-ghost hidden" style="font-size:0.85rem">⬇ Инсталирай апа</button>
   <button class="btn-ghost" style="font-size:0.85rem" onclick="exportData()">💾 Export</button>
   <label class="btn-ghost" style="font-size:0.85rem;cursor:pointer;display:inline-flex;align-items:center;padding:7px 16px;border-radius:6px">📂 Import<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+  <button class="btn-ghost" onclick="openCrafting()" aria-label="Крафтинг референции" style="font-size:0.85rem">⚒</button>
 </div>
 
 <nav class="tab-nav">
@@ -193,6 +194,29 @@
       </table>
     </div>
   </div>
+</div>
+
+<!-- ══════════════════════ CRAFTING REFERENCE ══════════════════════ -->
+<!-- Статична референция (⚒ в header реда, БЕЗ таб). Стои СЛЕД #baseDetail:
+     рутерът диспечира base-detail → crafting, така '#crafting' печели. -->
+<div id="craftingPage" class="hidden">
+  <button id="btnCraftBack" class="btn-ghost">← Назад</button>
+
+  <div class="craft-controls">
+    <input id="craftSearch" type="search" placeholder="Търси по име…">
+    <select id="craftBadge"></select>
+  </div>
+
+  <nav id="craftTabs" class="craft-tabs"></nav>
+
+  <div class="tbl-wrap">
+    <table id="craftTable">
+      <thead id="craftHead"></thead>
+      <tbody id="craftBody"></tbody>
+    </table>
+  </div>
+
+  <div id="craftInfo" class="hidden"></div>
 </div>
 
 <!-- ══════════════════════ BASE MODAL ══════════════════════ -->
