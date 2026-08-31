@@ -225,6 +225,56 @@
     #baseDetail .base-section h3 { font-size: 0.9rem; color: var(--accent2); margin-bottom: 8px; }
     #btnBaseSave { margin-top: 4px; }
 
+    /* Crafting reference "page" (⚒ in the header row → hash #crafting).
+       Огледало на #baseDetail — същата ширина/паднинг, за да не подскача
+       страницата при преход между двете „страници". */
+    #craftingPage { max-width: 900px; margin: 0 auto; padding: 16px; }
+
+    /* Вътрешните табове са chips лента: на телефон се скролира хоризонтално,
+       вместо да се пренася на 3 реда (9 таблици). */
+    .craft-tabs {
+      display: flex; gap: 8px; margin: 12px 0;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px; scrollbar-width: thin;
+    }
+    .craft-tabs button {
+      flex: 0 0 auto; white-space: nowrap;
+      background: var(--surface2); color: var(--text); border: 1px solid var(--border);
+      border-radius: 20px; padding: 6px 14px; font-size: 0.85rem;
+    }
+    .craft-tabs button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* Търсачка + badge филтър. Търсачката расте; на тесен екран се пренасят. */
+    .craft-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .craft-controls input, .craft-controls select {
+      background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+      border-radius: 6px; padding: 8px 10px; font-size: 0.9rem; font-family: inherit;
+    }
+    .craft-controls input:focus, .craft-controls select:focus { outline: none; border-color: var(--accent); }
+    .craft-controls #craftSearch { flex: 1 1 160px; min-width: 0; }
+    .craft-controls #craftBadge { flex: 0 1 auto; }
+    .craft-controls select option { background: var(--surface2); }
+
+    /* Баджът в списъка (Size / Potion Tier / Property) — по образеца на .badge. */
+    .craft-badge {
+      display: inline-block; border-radius: 20px; padding: 2px 10px;
+      font-size: 0.78rem; font-weight: 600;
+      background: var(--surface2); color: var(--accent2); border: 1px solid var(--border);
+    }
+
+    /* Разгънат ред: останалите колони като key: value (НЕ таблица — колоните
+       са много и на телефон не се събират). */
+    .craft-row { cursor: pointer; }
+    tr.craft-expanded { background: var(--surface2); }
+    .craft-details { display: flex; flex-direction: column; gap: 6px; padding: 4px 0 8px; }
+    .craft-details .craft-k { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: .5px; }
+    .craft-details .craft-v { font-size: 0.9rem; white-space: pre-wrap; word-break: break-word; }
+
+    /* Инфо таблиците (type: 'info') — същият key: value изглед, без таблица. */
+    #craftInfo { display: flex; flex-direction: column; gap: 12px; padding: 12px 0; }
+    #craftInfo .craft-k { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: .5px; }
+    #craftInfo .craft-v { font-size: 0.9rem; white-space: pre-wrap; word-break: break-word; }
+
     /* Fullscreen map viewer overlay (created once by modules/viewer.js) */
     #mapViewer { position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 200; display: flex; align-items: center; justify-content: center; overflow: hidden; touch-action: none; }
     #mapViewer img { transform-origin: 0 0; max-width: 100%; max-height: 100%; will-change: transform; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; }

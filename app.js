@@ -28,6 +28,13 @@ import {
   renderSubTables,
   openSubModal, closeSubModal, editSub, saveSub, deleteSub
 } from './modules/base-tables.js';
+import { renderCrafting, renderCraftingRoute, openCrafting } from './modules/crafting.js';
+import { populateBadgeOptions } from './modules/crafting-search.js';
+// Hash router (§11): SELF-INITIALIZING on import — it strips a leftover hash and
+// registers the app's ONE `hashchange` listener, which dispatches
+// renderRoute() (base detail) and then renderCraftingRoute(). Nothing to call
+// here; the import IS the wiring.
+import './modules/router.js';
 
 // ─── CONFIG ────────────────────────────────────────────────
 const PLAYERS = ['Калоян', 'Игор', 'Валентин', 'Петър'];
@@ -84,6 +91,10 @@ window.closeSubModal   = closeSubModal;
 window.editSub         = editSub;
 window.saveSub         = saveSub;
 window.deleteSub       = deleteSub;
+
+// ─── CRAFTING REFERENCE (⚒ в header реда — страница, не таб) ──
+//     Статични данни (modules/crafting-data.js) — никакъв Firestore wiring.
+window.openCrafting    = openCrafting;
 
 // ─── TABS (wiring moved to modules/ui.js) ───────────────────
 initTabs();
@@ -181,5 +192,7 @@ export { zoomAt, clampScale, openViewer, closeViewer } from './modules/viewer.js
 export { renderBases, saveBases } from './modules/bases.js';
 export { renderRoute, openBaseDetail, saveBaseDetail } from './modules/base-detail.js';
 export { renderSubTables } from './modules/base-tables.js';
+export { renderCrafting, renderCraftingRoute, openCrafting };
+export { populateBadgeOptions };
 export const getState = () => ({ gold: state.gold, items: state.items, quests: state.quests, maps: state.maps, bases: state.bases });
 export function setState(s) { if (s.gold !== undefined) state.gold = s.gold; if (s.items !== undefined) state.items = s.items; if (s.quests !== undefined) state.quests = s.quests; if (s.maps !== undefined) state.maps = s.maps; if (s.bases !== undefined) state.bases = s.bases; }

@@ -20,4 +20,8 @@ export const state = {
   currentBaseId: null,
   editingSub: null, // { kind, idx } or null
   expandedSub: { buildings: null, populace: null, production: null },
+  // Crafting reference (§11) — статична, без Firestore.
+  craftingTab: 'animals',
+  craftingFilter: { q: '', badge: '' },
+  expandedCraftIdx: null,
 };
