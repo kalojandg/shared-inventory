@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <!-- НАРОЧНО реалният styles.css (не инлайн копие) — прецедентът на
+       bases-routing-fixture.html: този спек пази ВИДИМОСТТА при рутиране, а
+       класът hidden я дава САМО ако глобалното правило наистина съществува.
+       toBeVisible/toBeHidden четат computed styles, така че липсващо CSS
+       правило пада тук, дори когато class toggling-ът е коректен. -->
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<h1>⚔ Shared Inventory</h1>
+
+<!-- Header редът от index.html (само ⚒ бутонът е от значение тук). -->
+<div style="text-align:center;margin-bottom:8px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+  <button class="btn-ghost" onclick="openCrafting()" aria-label="Крафтинг референции" style="font-size:0.85rem">⚒</button>
+</div>
+
+<nav class="tab-nav">
+  <button class="tab-btn" data-tab="inventory">Инвентар</button>
+  <button class="tab-btn" data-tab="quests">Куестове</button>
+  <button class="tab-btn" data-tab="maps">Карти</button>
+  <button class="tab-btn active" data-tab="bases">Бази</button>
+</nav>
+
+<div id="tab-inventory" class="tab"></div>
+<div id="tab-quests" class="tab"></div>
+<div id="tab-maps" class="tab"></div>
+<div id="tab-bases" class="tab active"></div>
+
+<!-- Огледало на #craftingPage от index.html (същите id-та и класове). -->
+<div id="craftingPage" class="hidden">
+  <button id="btnCraftBack" class="btn-ghost">← Назад</button>
+
+  <div class="craft-controls">
+    <input id="craftSearch" type="search" placeholder="Търси по име…">
+    <select id="craftBadge"></select>
+  </div>
+
+  <nav id="craftTabs" class="craft-tabs"></nav>
+
+  <div class="tbl-wrap">
+    <table id="craftTable">
+      <thead id="craftHead"></thead>
+      <tbody id="craftBody"></tbody>
+    </table>
+  </div>
+
+  <div id="craftInfo" class="hidden"></div>
+</div>
+
+<script>
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Данните са ИНЛАЙН — фикстурата е standalone (не import-ва crafting-data.js).
+  // ЕДНА таблица, 5 реда, ДВЕ Size стойности; последният ред нарочно има празни
+  // „Notes", за да се вижда и пропускането на празните стойности в детайла.
+  const TABLE = {
+    key: 'animals',
+    label: 'Животни',
+    type: 'table',
+    nameCol: 'Animal',
+    badgeCol: 'Size',
+    filterable: true,
+    columns: ['Animal', 'Size', 'Leather / Hide', 'Hide Weight (lb)', 'Hide Value (gp)', 'Harvest DC', 'Notes'],
+    rows: [
+      { 'Animal': 'Rat',           'Size': 'Tiny',  'Leather / Hide': 'Pelt', 'Hide Weight (lb)': 0.1, 'Hide Value (gp)': 0.05, 'Harvest DC': 5,  'Notes': 'Mostly worthless except in bulk/alchemy.' },
+      { 'Animal': 'Rabbit / Hare', 'Size': 'Tiny',  'Leather / Hide': 'Pelt', 'Hide Weight (lb)': 0.3, 'Hide Value (gp)': 0.2,  'Harvest DC': 5,  'Notes': 'Common small-game pelt.' },
+      { 'Animal': 'Fox',           'Size': 'Small', 'Leather / Hide': 'Fur',  'Hide Weight (lb)': 1.5, 'Hide Value (gp)': 2,    'Harvest DC': 8,  'Notes': 'Good decorative fur.' },
+      { 'Animal': 'Wolf',          'Size': 'Small', 'Leather / Hide': 'Fur',  'Hide Weight (lb)': 6,   'Hide Value (gp)': 5,    'Harvest DC': 10, 'Notes': 'Pack hunter; hide often scarred.' },
+      { 'Animal': 'Boar',          'Size': 'Small', 'Leather / Hide': 'Hide', 'Hide Weight (lb)': 12,  'Hide Value (gp)': 4,    'Harvest DC': 12, 'Notes': '' },
+    ],
+  };
+
+  // Мини-огледало на state.js (само крафтинг полетата).
+  const state = { craftingTab: 'animals', craftingFilter: { q: '', badge: '' }, expandedCraftIdx: null };
+
+  // ── Mirrors detailsRow/renderCrafting in modules/crafting.js ──
+  // Всички колони ОСВЕН name/badge като key: value линии, БЕЗ празните.
+  function detailsRow(t, row, colspan) {
+    const lines = t.columns
+      .filter(c => c !== t.nameCol && c !== t.badgeCol)
+      .map(c => [c, row[c]])
+      .filter(([, v]) => v !== '' && v !== null && v !== undefined)
+      .map(([c, v]) => `<div><span class="craft-details-label craft-k">${esc(c)}:</span> <span class="craft-v">${esc(v)}</span></div>`)
+      .join('');
+    return `<tr class="craft-details-row"><td colspan="${colspan}"><div class="craft-details">${lines}</div></td></tr>`;
+  }
+
+  function renderCrafting() {
+    const t = TABLE;
+
+    document.getElementById('craftTabs').innerHTML =
+      `<button class="craft-chip${t.key === state.craftingTab ? ' active' : ''}" data-key="${esc(t.key)}">${esc(t.label)}</button>`;
+
+    const head = document.getElementById('craftHead');
+    const body = document.getElementById('craftBody');
+    const colspan = t.badgeCol ? 3 : 2;
+
+    head.innerHTML = `<tr><th>${esc(t.nameCol)}</th>${t.badgeCol ? `<th>${esc(t.badgeCol)}</th>` : ''}<th></th></tr>`;
+
+    const q = (state.craftingFilter.q || '').toLowerCase();
+    const badge = state.craftingFilter.badge || '';
+    // data-idx е РЕАЛНИЯТ индекс в t.rows — разгънатият ред оцелява филтъра.
+    const visible = t.rows
+      .map((row, idx) => ({ row, idx }))
+      .filter(({ row }) => !q || String(row[t.nameCol]).toLowerCase().includes(q))
+      .filter(({ row }) => !badge || String(row[t.badgeCol]) === badge);
+
+    if (!visible.length) {
+      body.innerHTML = `<tr><td colspan="${colspan}" class="empty">Няма съвпадения.</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = visible.map(({ row, idx }) => {
+      const expanded = state.expandedCraftIdx === idx;
+      return `
+      <tr class="craft-row${expanded ? ' craft-expanded' : ''}" data-idx="${idx}">
+        <td><strong>${esc(row[t.nameCol])}</strong></td>
+        ${t.badgeCol ? `<td><span class="craft-badge">${esc(row[t.badgeCol])}</span></td>` : ''}
+        <td><div class="tbl-actions"><button class="btn-ghost btn-sm">📖</button></div></td>
+      </tr>${expanded ? detailsRow(t, row, colspan) : ''}`;
+    }).join('');
+
+    // Едно listener на ред: кликът върху 📖 бълбука до него — бутонът и редът
+    // toggle-ват едно и също.
+    body.querySelectorAll('tr[data-idx]').forEach(tr => {
+      tr.addEventListener('click', () => {
+        const idx = +tr.dataset.idx;
+        state.expandedCraftIdx = state.expandedCraftIdx === idx ? null : idx;
+        renderCrafting();
+      });
+    });
+  }
+
+  // ── Mirrors modules/crafting-search.js ──
+  function populateBadgeOptions() {
+    const sel = document.getElementById('craftBadge');
+    if (!TABLE.filterable) { sel.innerHTML = ''; sel.classList.add('hidden'); return; }
+    const values = [...new Set(TABLE.rows.map(r => String(r[TABLE.badgeCol])))];
+    sel.innerHTML = `<option value="">Всички</option>` +
+      values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
+    sel.classList.remove('hidden');
+  }
+
+  function applyFilter() {
+    state.craftingFilter = {
+      q: document.getElementById('craftSearch').value.trim(),
+      badge: document.getElementById('craftBadge').value,
+    };
+    renderCrafting();
+  }
+
+  // ── Mirrors renderCraftingRoute in modules/crafting.js + router.js ──
+  function renderRoute() {
+    // Табовият изглед (в приложението това е base-detail.renderRoute).
+    document.querySelector('.tab-nav').classList.remove('hidden');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('hidden'));
+  }
+
+  function renderCraftingRoute() {
+    const page = document.getElementById('craftingPage');
+    if (location.hash === '#crafting') {
+      document.querySelector('.tab-nav').classList.add('hidden');
+      document.querySelectorAll('.tab').forEach(t => t.classList.add('hidden'));
+      page.classList.remove('hidden');
+      renderCrafting();
+      return;
+    }
+    page.classList.add('hidden');
+  }
+
+  // router.js: renderRoute() пръв, renderCraftingRoute() последен (той печели).
+  function dispatchRoute() {
+    renderRoute();
+    renderCraftingRoute();
+  }
+
+  function openCrafting() {
+    location.hash = '#crafting';
+    renderCraftingRoute();
+  }
+
+  document.getElementById('btnCraftBack').addEventListener('click', () => {
+    location.hash = '';
+    dispatchRoute();
+  });
+  document.getElementById('craftSearch').addEventListener('input', applyFilter);
+  document.getElementById('craftBadge').addEventListener('change', applyFilter);
+  window.addEventListener('hashchange', dispatchRoute);
+
+  // Boot strip (router.js): ВСЕКИ остатъчен hash се чисти при зареждане — F5 в
+  // страницата винаги каца на табовете.
+  if (location.hash) {
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+  populateBadgeOptions();
+  dispatchRoute();
+</script>
+</body>
+</html>
