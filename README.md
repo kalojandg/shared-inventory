@@ -26,7 +26,7 @@ modules/            — приложната логика, разделена п
   router.js         — единственият hashchange owner: dispatchRoute() вика renderRoute() (#base/<id>) после renderCraftingRoute() (#crafting, печели последен) + boot strip за остатъчен hash
   crafting.js       — крафтинг референцията: renderCraftingRoute/renderCrafting/openCrafting (chips, списък име+бадж, акордеон детайли, info изглед) — статична, без Firestore
   crafting-search.js— търсене по име + badge филтър (state.craftingFilter + document events crafting-tab/crafting-filter)
-  crafting-data.js  — генерирани данни (9 таблици, harvesting + experimental alchemy), НЕ се редактира на ръка (виж tools/gen-crafting-data.cjs)
+  crafting-data.js  — генерирани данни (11 таблици, harvesting + experimental alchemy + raw materials economy), НЕ се редактира на ръка (виж tools/gen-crafting-data.cjs)
   ui.js             — syncMsg, esc, initSortable, tabs + modal backdrop wiring
 sw.js               — service worker
 manifest.json       — PWA manifest
@@ -56,14 +56,16 @@ export/import (v1) НЕ включва картите.
 
 Иконата **⚒** в header реда (до Export/Import) отваря крафтинг референцията —
 „страница", не таб, по модела на base detail (`#crafting` hash, „← Назад" бутон).
-Съдържа 9 статични референтни таблици (harvesting + experimental alchemy) зад
-хоризонтална лента с chips; всяка таблица има списък (име + бадж колона, ако е
-конфигурирана) с търсене по име и dropdown филтър по баджа, плюс 📖 акордеон
-детайли за останалите колони (key: value, не таблица). Данните са изцяло
-статични (`modules/crafting-data.js`, генериран, без Firestore reads) и не влизат
-в export/import bundle-а. `modules/router.js` е единственият `hashchange`
-listener в апа — диспечира base-detail (`#base/<id>`) и после crafting
-(`#crafting`, печели последен).
+Съдържа 11 статични референтни таблици (harvesting + experimental alchemy +
+raw materials economy) зад хоризонтална лента с chips; всяка таблица има списък
+(име + бадж колона, ако е конфигурирана) с търсене по име и dropdown филтър по
+баджа, плюс 📖 акордеон детайли за останалите колони (key: value, не таблица).
+Единствената таблица с истинска „Rarity" колона е `materials` (120 суровини) —
+там баджът е буквално rarity филтър; навсякъде другаде ролята играе Size/Potion
+Tier/Property. Данните са изцяло статични (`modules/crafting-data.js`, генериран,
+без Firestore reads) и не влизат в export/import bundle-а. `modules/router.js`
+е единственият `hashchange` listener в апа — диспечира base-detail (`#base/<id>`)
+и после crafting (`#crafting`, печели последен).
 
 ### CDN imports (умишлено)
 

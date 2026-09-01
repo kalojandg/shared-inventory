@@ -10,7 +10,7 @@
 
 ## Ключови решения
 1. **„Rarity" колона в данните реално НЯМА.** Най-близкото по таблици: `Size` (животни), `Potion Tier` (Brewing DC — истинското rarity), `Property` (ефекти). Затова badge/филтър колоната е **конфигурируема per таблица** (`badgeCol` + `filterable` в данните); където няма смислена — филтърът се скрива.
-2. **Данните са СТАТИЧНИ** — `modules/crafting-data.js` (генериран ES модул, ~44KB, 9 таблици). Никакъв Firestore (нула reads, пази free tier). Референцията не се редактира от апа.
+2. **Данните са СТАТИЧНИ** — `modules/crafting-data.js` (генериран ES модул, ~79KB, 11 таблици). Никакъв Firestore (нула reads, пази free tier). Референцията не се редактира от апа.
 3. Sheet-ът „Brewing DC" са две таблици една до друга → разцепен на `brewing` + `brewResults`. „Rules & Pricing" е инфо-текст → `type: 'info'`, рендерира се като key-value списък, не таблица.
 4. **Регенерация на данните**: `tools/gen-crafting-data.cjs` (изисква ad-hoc `npm i xlsx`; пътищата до xlsx са вътре). Генерираният файл не се редактира на ръка.
 5. **Routing**: нов `modules/router.js` — ЕДИНСТВЕНИЯТ hashchange владетел, диспечира по ред: base-detail → crafting (последният печели за `#crafting`). Boot strip на ВСЕКИ остатъчен hash (решението от bases: F5 винаги кацат на табовете). `base-detail.js` губи собствения си hashchange/boot-strip wiring (мести се в router.js), но пази `renderRoute` export-а.
