@@ -6,7 +6,7 @@
 - В страницата — много референтни таблици → **вътрешни табове** (chips).
 - **Търсене по име** + филтър по **rarity**.
 - Таблиците имат много колони → основният списък показва само **име + rarity**, а бутон „детайли" на реда показва останалите колони **не в табличен вид** (key: value).
-- Източници: `D:\Downloads\3d\DnD_Animal_Harvesting_Reference.xlsx`, `D:\Downloads\3d\DnD_Experimental_Alchemy_System.xlsx`.
+- Източници: `D:\Downloads\3d\DnD_Animal_Harvesting_Reference.xlsx`, `D:\Downloads\3d\DnD_Experimental_Alchemy_System.xlsx`; от 2026-09-01 и `D:\Downloads\3d\DnD_Raw_Materials_Economy.xlsx` (таскове 910+).
 
 ## Ключови решения
 1. **„Rarity" колона в данните реално НЯМА.** Най-близкото по таблици: `Size` (животни), `Potion Tier` (Brewing DC — истинското rarity), `Property` (ефекти). Затова badge/филтър колоната е **конфигурируема per таблица** (`badgeCol` + `filterable` в данните); където няма смислена — филтърът се скрива.
@@ -27,6 +27,10 @@
 | hybrid | Хибриди (d6) | 6 | Dominance | d6 | — |
 | failures | Провали (d12) | 12 | Failure Type | d12 | — |
 | ident | Идентификация | 5 | Check | DC / Trigger | — |
+| materials | Суровини | 120 | Raw Material | **Rarity** | ✓ |
+| rarityRules | Рядкост (правила) | 6 | Rarity | — | — |
+
+Суровините са единствената таблица с ИСТИНСКА Rarity колона (Common/Uncommon/Rare/Very Rare/Legendary) — badge филтърът там е буквалното „търсене по rarity" от заданието. Category колоната остава в детайлите.
 
 ## Изпълнение
 Ralph swarm board: таскове **710–740**, repo `inventory`:

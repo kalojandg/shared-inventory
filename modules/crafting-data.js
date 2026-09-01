@@ -1,5 +1,5 @@
 // ─── CRAFTING REFERENCE DATA (generated — do not edit by hand) ─────────────
-// Източник: DnD_Animal_Harvesting_Reference.xlsx + DnD_Experimental_Alchemy_System.xlsx
+// Източник: DnD_Animal_Harvesting_Reference.xlsx + DnD_Experimental_Alchemy_System.xlsx + DnD_Raw_Materials_Economy.xlsx
 // Регенерира се със scratchpad скрипта gen-crafting-data.js (виж crafting-feature-plan.md).
 // Схема per таблица: { key, label, group, type: 'table'|'info',
 //   nameCol (главната колона в списъка), badgeCol (втората колона/бадж или null),
@@ -1558,6 +1558,1159 @@ export const CRAFTING_TABLES = [
         "Check": "Critical failure",
         "DC / Trigger": "Natural 1",
         "Information Learned": "Confidently incorrect identification"
+      }
+    ]
+  },
+  {
+    "key": "materials",
+    "label": "Суровини",
+    "group": "Икономика",
+    "type": "table",
+    "nameCol": "Raw Material",
+    "badgeCol": "Rarity",
+    "filterable": true,
+    "columns": [
+      "Raw Material",
+      "Category",
+      "Raw Value / lb (gp)",
+      "Refining Cost / lb (gp)",
+      "Weight Yield",
+      "Rarity",
+      "Typical Refined Product / Notes"
+    ],
+    "rows": [
+      {
+        "Raw Material": "Common soil",
+        "Category": "Earth & Stone",
+        "Raw Value / lb (gp)": 0.0002,
+        "Refining Cost / lb (gp)": 0,
+        "Weight Yield": 1,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Fill / packed earth"
+      },
+      {
+        "Raw Material": "Clay",
+        "Category": "Earth & Stone",
+        "Raw Value / lb (gp)": 0.005,
+        "Refining Cost / lb (gp)": 0.01,
+        "Weight Yield": 0.85,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Worked/fired clay"
+      },
+      {
+        "Raw Material": "Sand",
+        "Category": "Earth & Stone",
+        "Raw Value / lb (gp)": 0.002,
+        "Refining Cost / lb (gp)": 0.03,
+        "Weight Yield": 0.7,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Clean sand / glass feedstock"
+      },
+      {
+        "Raw Material": "Gravel",
+        "Category": "Earth & Stone",
+        "Raw Value / lb (gp)": 0.002,
+        "Refining Cost / lb (gp)": 0.002,
+        "Weight Yield": 0.95,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Sorted gravel"
+      },
+      {
+        "Raw Material": "Chalk",
+        "Category": "Earth & Stone",
+        "Raw Value / lb (gp)": 0.01,
+        "Refining Cost / lb (gp)": 0.01,
+        "Weight Yield": 0.8,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Ground chalk"
+      },
+      {
+        "Raw Material": "Limestone",
+        "Category": "Earth & Stone",
+        "Raw Value / lb (gp)": 0.01,
+        "Refining Cost / lb (gp)": 0.02,
+        "Weight Yield": 0.8,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Dressed limestone / lime"
+      },
+      {
+        "Raw Material": "Sandstone",
+        "Category": "Earth & Stone",
+        "Raw Value / lb (gp)": 0.015,
+        "Refining Cost / lb (gp)": 0.025,
+        "Weight Yield": 0.75,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Dressed sandstone"
+      },
+      {
+        "Raw Material": "Slate",
+        "Category": "Earth & Stone",
+        "Raw Value / lb (gp)": 0.02,
+        "Refining Cost / lb (gp)": 0.03,
+        "Weight Yield": 0.7,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Roofing / dressed slate"
+      },
+      {
+        "Raw Material": "Granite",
+        "Category": "Earth & Stone",
+        "Raw Value / lb (gp)": 0.025,
+        "Refining Cost / lb (gp)": 0.05,
+        "Weight Yield": 0.7,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Dressed granite"
+      },
+      {
+        "Raw Material": "Basalt",
+        "Category": "Earth & Stone",
+        "Raw Value / lb (gp)": 0.025,
+        "Refining Cost / lb (gp)": 0.05,
+        "Weight Yield": 0.7,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Dressed basalt"
+      },
+      {
+        "Raw Material": "Marble",
+        "Category": "Earth & Stone",
+        "Raw Value / lb (gp)": 0.05,
+        "Refining Cost / lb (gp)": 0.2,
+        "Weight Yield": 0.65,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Dressed/polished marble"
+      },
+      {
+        "Raw Material": "Soapstone",
+        "Category": "Earth & Stone",
+        "Raw Value / lb (gp)": 0.04,
+        "Refining Cost / lb (gp)": 0.06,
+        "Weight Yield": 0.8,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Carved stone"
+      },
+      {
+        "Raw Material": "Flint",
+        "Category": "Earth & Stone",
+        "Raw Value / lb (gp)": 0.05,
+        "Refining Cost / lb (gp)": 0.1,
+        "Weight Yield": 0.5,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Knapped flint"
+      },
+      {
+        "Raw Material": "Obsidian",
+        "Category": "Earth & Stone",
+        "Raw Value / lb (gp)": 0.2,
+        "Refining Cost / lb (gp)": 0.5,
+        "Weight Yield": 0.5,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Craft-grade obsidian"
+      },
+      {
+        "Raw Material": "Pumice",
+        "Category": "Earth & Stone",
+        "Raw Value / lb (gp)": 0.03,
+        "Refining Cost / lb (gp)": 0.02,
+        "Weight Yield": 0.9,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Sorted pumice"
+      },
+      {
+        "Raw Material": "Alabaster",
+        "Category": "Earth & Stone",
+        "Raw Value / lb (gp)": 0.1,
+        "Refining Cost / lb (gp)": 0.2,
+        "Weight Yield": 0.65,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Carved/polished alabaster"
+      },
+      {
+        "Raw Material": "Sulfur",
+        "Category": "Mineral & Chemical",
+        "Raw Value / lb (gp)": 0.1,
+        "Refining Cost / lb (gp)": 0.05,
+        "Weight Yield": 0.8,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Purified sulfur"
+      },
+      {
+        "Raw Material": "Rock salt",
+        "Category": "Mineral & Chemical",
+        "Raw Value / lb (gp)": 0.03,
+        "Refining Cost / lb (gp)": 0.02,
+        "Weight Yield": 0.8,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Food/industrial salt"
+      },
+      {
+        "Raw Material": "Saltpeter",
+        "Category": "Mineral & Chemical",
+        "Raw Value / lb (gp)": 0.2,
+        "Refining Cost / lb (gp)": 0.1,
+        "Weight Yield": 0.7,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Purified saltpeter"
+      },
+      {
+        "Raw Material": "Borax",
+        "Category": "Mineral & Chemical",
+        "Raw Value / lb (gp)": 0.15,
+        "Refining Cost / lb (gp)": 0.08,
+        "Weight Yield": 0.75,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Purified flux"
+      },
+      {
+        "Raw Material": "Gypsum",
+        "Category": "Mineral & Chemical",
+        "Raw Value / lb (gp)": 0.02,
+        "Refining Cost / lb (gp)": 0.03,
+        "Weight Yield": 0.8,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Plaster"
+      },
+      {
+        "Raw Material": "Coal",
+        "Category": "Fuel",
+        "Raw Value / lb (gp)": 0.02,
+        "Refining Cost / lb (gp)": 0.01,
+        "Weight Yield": 0.9,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Sorted coal"
+      },
+      {
+        "Raw Material": "Peat",
+        "Category": "Fuel",
+        "Raw Value / lb (gp)": 0.005,
+        "Refining Cost / lb (gp)": 0.005,
+        "Weight Yield": 0.6,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Dried peat"
+      },
+      {
+        "Raw Material": "Crude bitumen",
+        "Category": "Fuel",
+        "Raw Value / lb (gp)": 0.05,
+        "Refining Cost / lb (gp)": 0.04,
+        "Weight Yield": 0.8,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Pitch / tar"
+      },
+      {
+        "Raw Material": "Pine log",
+        "Category": "Wood",
+        "Raw Value / lb (gp)": 0.01,
+        "Refining Cost / lb (gp)": 0.02,
+        "Weight Yield": 0.7,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Seasoned pine lumber"
+      },
+      {
+        "Raw Material": "Spruce log",
+        "Category": "Wood",
+        "Raw Value / lb (gp)": 0.01,
+        "Refining Cost / lb (gp)": 0.02,
+        "Weight Yield": 0.7,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Seasoned spruce lumber"
+      },
+      {
+        "Raw Material": "Fir log",
+        "Category": "Wood",
+        "Raw Value / lb (gp)": 0.012,
+        "Refining Cost / lb (gp)": 0.02,
+        "Weight Yield": 0.7,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Seasoned fir lumber"
+      },
+      {
+        "Raw Material": "Birch log",
+        "Category": "Wood",
+        "Raw Value / lb (gp)": 0.015,
+        "Refining Cost / lb (gp)": 0.025,
+        "Weight Yield": 0.68,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Seasoned birch lumber"
+      },
+      {
+        "Raw Material": "Oak log",
+        "Category": "Wood",
+        "Raw Value / lb (gp)": 0.02,
+        "Refining Cost / lb (gp)": 0.03,
+        "Weight Yield": 0.65,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Seasoned oak lumber"
+      },
+      {
+        "Raw Material": "Ash log",
+        "Category": "Wood",
+        "Raw Value / lb (gp)": 0.025,
+        "Refining Cost / lb (gp)": 0.035,
+        "Weight Yield": 0.65,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Seasoned ash lumber"
+      },
+      {
+        "Raw Material": "Maple log",
+        "Category": "Wood",
+        "Raw Value / lb (gp)": 0.025,
+        "Refining Cost / lb (gp)": 0.04,
+        "Weight Yield": 0.65,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Seasoned maple lumber"
+      },
+      {
+        "Raw Material": "Beech log",
+        "Category": "Wood",
+        "Raw Value / lb (gp)": 0.02,
+        "Refining Cost / lb (gp)": 0.03,
+        "Weight Yield": 0.65,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Seasoned beech lumber"
+      },
+      {
+        "Raw Material": "Cedar log",
+        "Category": "Wood",
+        "Raw Value / lb (gp)": 0.04,
+        "Refining Cost / lb (gp)": 0.04,
+        "Weight Yield": 0.65,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Seasoned cedar"
+      },
+      {
+        "Raw Material": "Walnut log",
+        "Category": "Wood",
+        "Raw Value / lb (gp)": 0.05,
+        "Refining Cost / lb (gp)": 0.06,
+        "Weight Yield": 0.6,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Seasoned walnut"
+      },
+      {
+        "Raw Material": "Yew log",
+        "Category": "Wood",
+        "Raw Value / lb (gp)": 0.08,
+        "Refining Cost / lb (gp)": 0.08,
+        "Weight Yield": 0.55,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Seasoned yew"
+      },
+      {
+        "Raw Material": "Mahogany log",
+        "Category": "Wood",
+        "Raw Value / lb (gp)": 0.15,
+        "Refining Cost / lb (gp)": 0.1,
+        "Weight Yield": 0.6,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Seasoned mahogany"
+      },
+      {
+        "Raw Material": "Ebony log",
+        "Category": "Wood",
+        "Raw Value / lb (gp)": 0.5,
+        "Refining Cost / lb (gp)": 0.25,
+        "Weight Yield": 0.55,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Seasoned ebony"
+      },
+      {
+        "Raw Material": "Ironwood log",
+        "Category": "Wood",
+        "Raw Value / lb (gp)": 2,
+        "Refining Cost / lb (gp)": 1,
+        "Weight Yield": 0.5,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Worked ironwood"
+      },
+      {
+        "Raw Material": "Bamboo",
+        "Category": "Plant & Fiber",
+        "Raw Value / lb (gp)": 0.01,
+        "Refining Cost / lb (gp)": 0.01,
+        "Weight Yield": 0.8,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Dried bamboo"
+      },
+      {
+        "Raw Material": "Reeds",
+        "Category": "Plant & Fiber",
+        "Raw Value / lb (gp)": 0.005,
+        "Refining Cost / lb (gp)": 0.005,
+        "Weight Yield": 0.7,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Dried reeds"
+      },
+      {
+        "Raw Material": "Flax stalks",
+        "Category": "Plant & Fiber",
+        "Raw Value / lb (gp)": 0.03,
+        "Refining Cost / lb (gp)": 0.08,
+        "Weight Yield": 0.25,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Linen fiber"
+      },
+      {
+        "Raw Material": "Hemp stalks",
+        "Category": "Plant & Fiber",
+        "Raw Value / lb (gp)": 0.02,
+        "Refining Cost / lb (gp)": 0.05,
+        "Weight Yield": 0.3,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Hemp fiber"
+      },
+      {
+        "Raw Material": "Cotton bolls",
+        "Category": "Plant & Fiber",
+        "Raw Value / lb (gp)": 0.05,
+        "Refining Cost / lb (gp)": 0.08,
+        "Weight Yield": 0.35,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Clean cotton fiber"
+      },
+      {
+        "Raw Material": "Raw wool",
+        "Category": "Plant & Fiber",
+        "Raw Value / lb (gp)": 0.08,
+        "Refining Cost / lb (gp)": 0.06,
+        "Weight Yield": 0.7,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Clean/card wool"
+      },
+      {
+        "Raw Material": "Raw silk cocoons",
+        "Category": "Plant & Fiber",
+        "Raw Value / lb (gp)": 1,
+        "Refining Cost / lb (gp)": 1.5,
+        "Weight Yield": 0.2,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Silk fiber"
+      },
+      {
+        "Raw Material": "Natural rubber latex",
+        "Category": "Plant & Fiber",
+        "Raw Value / lb (gp)": 0.1,
+        "Refining Cost / lb (gp)": 0.1,
+        "Weight Yield": 0.6,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Rubber"
+      },
+      {
+        "Raw Material": "Tree resin",
+        "Category": "Plant & Fiber",
+        "Raw Value / lb (gp)": 0.08,
+        "Refining Cost / lb (gp)": 0.05,
+        "Weight Yield": 0.8,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Rosin / resin"
+      },
+      {
+        "Raw Material": "Beeswax comb",
+        "Category": "Plant & Fiber",
+        "Raw Value / lb (gp)": 0.15,
+        "Refining Cost / lb (gp)": 0.08,
+        "Weight Yield": 0.6,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Clean beeswax"
+      },
+      {
+        "Raw Material": "Iron ore",
+        "Category": "Metal Ore",
+        "Raw Value / lb (gp)": 0.05,
+        "Refining Cost / lb (gp)": 0.1,
+        "Weight Yield": 0.45,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Iron"
+      },
+      {
+        "Raw Material": "Bog iron ore",
+        "Category": "Metal Ore",
+        "Raw Value / lb (gp)": 0.04,
+        "Refining Cost / lb (gp)": 0.1,
+        "Weight Yield": 0.35,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Iron"
+      },
+      {
+        "Raw Material": "Copper ore",
+        "Category": "Metal Ore",
+        "Raw Value / lb (gp)": 0.1,
+        "Refining Cost / lb (gp)": 0.15,
+        "Weight Yield": 0.3,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Copper"
+      },
+      {
+        "Raw Material": "Tin ore",
+        "Category": "Metal Ore",
+        "Raw Value / lb (gp)": 0.25,
+        "Refining Cost / lb (gp)": 0.25,
+        "Weight Yield": 0.2,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Tin"
+      },
+      {
+        "Raw Material": "Lead ore",
+        "Category": "Metal Ore",
+        "Raw Value / lb (gp)": 0.08,
+        "Refining Cost / lb (gp)": 0.12,
+        "Weight Yield": 0.5,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Lead"
+      },
+      {
+        "Raw Material": "Zinc ore",
+        "Category": "Metal Ore",
+        "Raw Value / lb (gp)": 0.12,
+        "Refining Cost / lb (gp)": 0.18,
+        "Weight Yield": 0.3,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Zinc"
+      },
+      {
+        "Raw Material": "Nickel ore",
+        "Category": "Metal Ore",
+        "Raw Value / lb (gp)": 0.25,
+        "Refining Cost / lb (gp)": 0.3,
+        "Weight Yield": 0.2,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Nickel"
+      },
+      {
+        "Raw Material": "Cobalt ore",
+        "Category": "Metal Ore",
+        "Raw Value / lb (gp)": 0.5,
+        "Refining Cost / lb (gp)": 0.5,
+        "Weight Yield": 0.15,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Cobalt"
+      },
+      {
+        "Raw Material": "Mercury ore (cinnabar)",
+        "Category": "Metal Ore",
+        "Raw Value / lb (gp)": 1,
+        "Refining Cost / lb (gp)": 1,
+        "Weight Yield": 0.15,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Mercury"
+      },
+      {
+        "Raw Material": "Silver ore",
+        "Category": "Precious Ore",
+        "Raw Value / lb (gp)": 2,
+        "Refining Cost / lb (gp)": 1.5,
+        "Weight Yield": 0.1,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Silver"
+      },
+      {
+        "Raw Material": "Electrum-bearing ore",
+        "Category": "Precious Ore",
+        "Raw Value / lb (gp)": 3,
+        "Refining Cost / lb (gp)": 2,
+        "Weight Yield": 0.08,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Electrum metals"
+      },
+      {
+        "Raw Material": "Gold ore",
+        "Category": "Precious Ore",
+        "Raw Value / lb (gp)": 5,
+        "Refining Cost / lb (gp)": 2,
+        "Weight Yield": 0.05,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Gold"
+      },
+      {
+        "Raw Material": "Platinum ore",
+        "Category": "Precious Ore",
+        "Raw Value / lb (gp)": 25,
+        "Refining Cost / lb (gp)": 10,
+        "Weight Yield": 0.03,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Platinum"
+      },
+      {
+        "Raw Material": "Mithral ore",
+        "Category": "Fantasy Ore",
+        "Raw Value / lb (gp)": 50,
+        "Refining Cost / lb (gp)": 25,
+        "Weight Yield": 0.2,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Mithral"
+      },
+      {
+        "Raw Material": "Adamantine ore",
+        "Category": "Fantasy Ore",
+        "Raw Value / lb (gp)": 100,
+        "Refining Cost / lb (gp)": 50,
+        "Weight Yield": 0.15,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Adamantine"
+      },
+      {
+        "Raw Material": "Cold iron ore",
+        "Category": "Fantasy Ore",
+        "Raw Value / lb (gp)": 5,
+        "Refining Cost / lb (gp)": 3,
+        "Weight Yield": 0.35,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Cold iron"
+      },
+      {
+        "Raw Material": "Star metal ore",
+        "Category": "Fantasy Ore",
+        "Raw Value / lb (gp)": 250,
+        "Refining Cost / lb (gp)": 150,
+        "Weight Yield": 0.1,
+        "Rarity": "Legendary",
+        "Typical Refined Product / Notes": "Star metal; specialist furnace required"
+      },
+      {
+        "Raw Material": "Warpstone shard",
+        "Category": "Fantasy Mineral",
+        "Raw Value / lb (gp)": 500,
+        "Refining Cost / lb (gp)": 250,
+        "Weight Yield": 0.7,
+        "Rarity": "Legendary",
+        "Typical Refined Product / Notes": "Refined warpstone; extremely hazardous"
+      },
+      {
+        "Raw Material": "Raw arcane crystal",
+        "Category": "Fantasy Mineral",
+        "Raw Value / lb (gp)": 50,
+        "Refining Cost / lb (gp)": 20,
+        "Weight Yield": 0.65,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Arcane crystal"
+      },
+      {
+        "Raw Material": "Mana crystal",
+        "Category": "Fantasy Mineral",
+        "Raw Value / lb (gp)": 100,
+        "Refining Cost / lb (gp)": 40,
+        "Weight Yield": 0.7,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Charged magical crystal"
+      },
+      {
+        "Raw Material": "Elemental crystal",
+        "Category": "Fantasy Mineral",
+        "Raw Value / lb (gp)": 75,
+        "Refining Cost / lb (gp)": 30,
+        "Weight Yield": 0.6,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Elemental essence crystal"
+      },
+      {
+        "Raw Material": "Raw quartz",
+        "Category": "Gem & Crystal",
+        "Raw Value / lb (gp)": 0.1,
+        "Refining Cost / lb (gp)": 0.1,
+        "Weight Yield": 0.6,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Cut/polished quartz"
+      },
+      {
+        "Raw Material": "Raw amethyst",
+        "Category": "Gem & Crystal",
+        "Raw Value / lb (gp)": 2,
+        "Refining Cost / lb (gp)": 1,
+        "Weight Yield": 0.35,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Cut amethyst"
+      },
+      {
+        "Raw Material": "Raw agate",
+        "Category": "Gem & Crystal",
+        "Raw Value / lb (gp)": 1,
+        "Refining Cost / lb (gp)": 0.5,
+        "Weight Yield": 0.5,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Polished agate"
+      },
+      {
+        "Raw Material": "Raw amber",
+        "Category": "Gem & Crystal",
+        "Raw Value / lb (gp)": 2,
+        "Refining Cost / lb (gp)": 0.75,
+        "Weight Yield": 0.6,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Polished amber"
+      },
+      {
+        "Raw Material": "Raw turquoise",
+        "Category": "Gem & Crystal",
+        "Raw Value / lb (gp)": 3,
+        "Refining Cost / lb (gp)": 1.5,
+        "Weight Yield": 0.4,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Cut turquoise"
+      },
+      {
+        "Raw Material": "Raw jade",
+        "Category": "Gem & Crystal",
+        "Raw Value / lb (gp)": 5,
+        "Refining Cost / lb (gp)": 2,
+        "Weight Yield": 0.45,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Carved jade"
+      },
+      {
+        "Raw Material": "Raw garnet",
+        "Category": "Gem & Crystal",
+        "Raw Value / lb (gp)": 5,
+        "Refining Cost / lb (gp)": 2,
+        "Weight Yield": 0.3,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Cut garnet"
+      },
+      {
+        "Raw Material": "Raw aquamarine",
+        "Category": "Gem & Crystal",
+        "Raw Value / lb (gp)": 8,
+        "Refining Cost / lb (gp)": 3,
+        "Weight Yield": 0.25,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Cut aquamarine"
+      },
+      {
+        "Raw Material": "Raw opal",
+        "Category": "Gem & Crystal",
+        "Raw Value / lb (gp)": 10,
+        "Refining Cost / lb (gp)": 4,
+        "Weight Yield": 0.25,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Cut opal"
+      },
+      {
+        "Raw Material": "Raw topaz",
+        "Category": "Gem & Crystal",
+        "Raw Value / lb (gp)": 12,
+        "Refining Cost / lb (gp)": 5,
+        "Weight Yield": 0.2,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Cut topaz"
+      },
+      {
+        "Raw Material": "Raw emerald",
+        "Category": "Gem & Crystal",
+        "Raw Value / lb (gp)": 25,
+        "Refining Cost / lb (gp)": 10,
+        "Weight Yield": 0.15,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Cut emerald"
+      },
+      {
+        "Raw Material": "Raw sapphire",
+        "Category": "Gem & Crystal",
+        "Raw Value / lb (gp)": 30,
+        "Refining Cost / lb (gp)": 12,
+        "Weight Yield": 0.15,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Cut sapphire"
+      },
+      {
+        "Raw Material": "Raw ruby",
+        "Category": "Gem & Crystal",
+        "Raw Value / lb (gp)": 35,
+        "Refining Cost / lb (gp)": 15,
+        "Weight Yield": 0.15,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Cut ruby"
+      },
+      {
+        "Raw Material": "Raw diamond",
+        "Category": "Gem & Crystal",
+        "Raw Value / lb (gp)": 50,
+        "Refining Cost / lb (gp)": 20,
+        "Weight Yield": 0.2,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Cut diamond"
+      },
+      {
+        "Raw Material": "Raw animal hide",
+        "Category": "Animal",
+        "Raw Value / lb (gp)": 0.1,
+        "Refining Cost / lb (gp)": 0.1,
+        "Weight Yield": 0.6,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Leather; species modifies value"
+      },
+      {
+        "Raw Material": "Raw fur pelt",
+        "Category": "Animal",
+        "Raw Value / lb (gp)": 0.2,
+        "Refining Cost / lb (gp)": 0.1,
+        "Weight Yield": 0.7,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Cured fur"
+      },
+      {
+        "Raw Material": "Bone",
+        "Category": "Animal",
+        "Raw Value / lb (gp)": 0.03,
+        "Refining Cost / lb (gp)": 0.03,
+        "Weight Yield": 0.8,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Clean/dried bone"
+      },
+      {
+        "Raw Material": "Antler",
+        "Category": "Animal",
+        "Raw Value / lb (gp)": 0.15,
+        "Refining Cost / lb (gp)": 0.08,
+        "Weight Yield": 0.85,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Worked antler"
+      },
+      {
+        "Raw Material": "Horn",
+        "Category": "Animal",
+        "Raw Value / lb (gp)": 0.2,
+        "Refining Cost / lb (gp)": 0.1,
+        "Weight Yield": 0.8,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Worked horn"
+      },
+      {
+        "Raw Material": "Tusk / common ivory",
+        "Category": "Animal",
+        "Raw Value / lb (gp)": 1,
+        "Refining Cost / lb (gp)": 0.5,
+        "Weight Yield": 0.85,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Worked ivory"
+      },
+      {
+        "Raw Material": "Shell",
+        "Category": "Animal",
+        "Raw Value / lb (gp)": 0.1,
+        "Refining Cost / lb (gp)": 0.08,
+        "Weight Yield": 0.75,
+        "Rarity": "Common",
+        "Typical Refined Product / Notes": "Worked shell"
+      },
+      {
+        "Raw Material": "Chitin",
+        "Category": "Animal",
+        "Raw Value / lb (gp)": 0.15,
+        "Refining Cost / lb (gp)": 0.15,
+        "Weight Yield": 0.6,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Hardened chitin"
+      },
+      {
+        "Raw Material": "Giant insect chitin",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 1,
+        "Refining Cost / lb (gp)": 0.75,
+        "Weight Yield": 0.55,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Armor-grade chitin"
+      },
+      {
+        "Raw Material": "Giant spider silk gland",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 2,
+        "Refining Cost / lb (gp)": 1,
+        "Weight Yield": 0.25,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Spider silk"
+      },
+      {
+        "Raw Material": "Dragon hide",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 50,
+        "Refining Cost / lb (gp)": 25,
+        "Weight Yield": 0.5,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Dragon leather"
+      },
+      {
+        "Raw Material": "Dragon scales",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 100,
+        "Refining Cost / lb (gp)": 50,
+        "Weight Yield": 0.8,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Worked dragon scales"
+      },
+      {
+        "Raw Material": "Dragon bone",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 40,
+        "Refining Cost / lb (gp)": 20,
+        "Weight Yield": 0.75,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Worked dragonbone"
+      },
+      {
+        "Raw Material": "Dragon tooth",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 75,
+        "Refining Cost / lb (gp)": 15,
+        "Weight Yield": 0.9,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Worked dragon tooth"
+      },
+      {
+        "Raw Material": "Troll hide",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 5,
+        "Refining Cost / lb (gp)": 4,
+        "Weight Yield": 0.45,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Regenerative leather"
+      },
+      {
+        "Raw Material": "Basilisk hide",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 10,
+        "Refining Cost / lb (gp)": 6,
+        "Weight Yield": 0.5,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Hardened basilisk leather"
+      },
+      {
+        "Raw Material": "Bulette shell",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 15,
+        "Refining Cost / lb (gp)": 8,
+        "Weight Yield": 0.65,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Armor-grade shell"
+      },
+      {
+        "Raw Material": "Ankheg chitin",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 5,
+        "Refining Cost / lb (gp)": 3,
+        "Weight Yield": 0.6,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Acid-resistant chitin"
+      },
+      {
+        "Raw Material": "Wyvern hide",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 12,
+        "Refining Cost / lb (gp)": 7,
+        "Weight Yield": 0.55,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Wyvern leather"
+      },
+      {
+        "Raw Material": "Griffon hide",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 8,
+        "Refining Cost / lb (gp)": 5,
+        "Weight Yield": 0.55,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Griffon leather"
+      },
+      {
+        "Raw Material": "Manticore hide",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 8,
+        "Refining Cost / lb (gp)": 5,
+        "Weight Yield": 0.55,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Manticore leather"
+      },
+      {
+        "Raw Material": "Displacer beast hide",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 25,
+        "Refining Cost / lb (gp)": 15,
+        "Weight Yield": 0.45,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Displacement-sensitive hide"
+      },
+      {
+        "Raw Material": "Phase spider chitin",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 20,
+        "Refining Cost / lb (gp)": 12,
+        "Weight Yield": 0.5,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Planar chitin"
+      },
+      {
+        "Raw Material": "Vampire beast hide",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 15,
+        "Refining Cost / lb (gp)": 10,
+        "Weight Yield": 0.4,
+        "Rarity": "Rare",
+        "Typical Refined Product / Notes": "Necrotically tainted leather"
+      },
+      {
+        "Raw Material": "Undead bone",
+        "Category": "Monster Material",
+        "Raw Value / lb (gp)": 0.5,
+        "Refining Cost / lb (gp)": 0.5,
+        "Weight Yield": 0.75,
+        "Rarity": "Uncommon",
+        "Typical Refined Product / Notes": "Stabilized necrotic bone"
+      },
+      {
+        "Raw Material": "Fiend hide",
+        "Category": "Planar Material",
+        "Raw Value / lb (gp)": 25,
+        "Refining Cost / lb (gp)": 15,
+        "Weight Yield": 0.5,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Infernal leather"
+      },
+      {
+        "Raw Material": "Fiend horn",
+        "Category": "Planar Material",
+        "Raw Value / lb (gp)": 30,
+        "Refining Cost / lb (gp)": 10,
+        "Weight Yield": 0.8,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Infernal horn"
+      },
+      {
+        "Raw Material": "Demon ichor",
+        "Category": "Planar Material",
+        "Raw Value / lb (gp)": 50,
+        "Refining Cost / lb (gp)": 25,
+        "Weight Yield": 0.6,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Stabilized demonic reagent"
+      },
+      {
+        "Raw Material": "Devil ichor",
+        "Category": "Planar Material",
+        "Raw Value / lb (gp)": 60,
+        "Refining Cost / lb (gp)": 30,
+        "Weight Yield": 0.65,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Stabilized infernal reagent"
+      },
+      {
+        "Raw Material": "Celestial feather",
+        "Category": "Planar Material",
+        "Raw Value / lb (gp)": 100,
+        "Refining Cost / lb (gp)": 20,
+        "Weight Yield": 0.9,
+        "Rarity": "Legendary",
+        "Typical Refined Product / Notes": "Consecrated feather"
+      },
+      {
+        "Raw Material": "Celestial bone",
+        "Category": "Planar Material",
+        "Raw Value / lb (gp)": 150,
+        "Refining Cost / lb (gp)": 50,
+        "Weight Yield": 0.8,
+        "Rarity": "Legendary",
+        "Typical Refined Product / Notes": "Consecrated bone"
+      },
+      {
+        "Raw Material": "Feywood",
+        "Category": "Planar Material",
+        "Raw Value / lb (gp)": 20,
+        "Refining Cost / lb (gp)": 10,
+        "Weight Yield": 0.6,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Seasoned feywood"
+      },
+      {
+        "Raw Material": "Fey crystal",
+        "Category": "Planar Material",
+        "Raw Value / lb (gp)": 40,
+        "Refining Cost / lb (gp)": 15,
+        "Weight Yield": 0.7,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Refined fey crystal"
+      },
+      {
+        "Raw Material": "Elemental earth core",
+        "Category": "Planar Material",
+        "Raw Value / lb (gp)": 30,
+        "Refining Cost / lb (gp)": 15,
+        "Weight Yield": 0.7,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Earth essence"
+      },
+      {
+        "Raw Material": "Elemental fire core",
+        "Category": "Planar Material",
+        "Raw Value / lb (gp)": 40,
+        "Refining Cost / lb (gp)": 20,
+        "Weight Yield": 0.6,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Fire essence"
+      },
+      {
+        "Raw Material": "Elemental water core",
+        "Category": "Planar Material",
+        "Raw Value / lb (gp)": 30,
+        "Refining Cost / lb (gp)": 15,
+        "Weight Yield": 0.7,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Water essence"
+      },
+      {
+        "Raw Material": "Elemental air core",
+        "Category": "Planar Material",
+        "Raw Value / lb (gp)": 40,
+        "Refining Cost / lb (gp)": 20,
+        "Weight Yield": 0.5,
+        "Rarity": "Very Rare",
+        "Typical Refined Product / Notes": "Air essence"
+      }
+    ]
+  },
+  {
+    "key": "rarityRules",
+    "label": "Рядкост (правила)",
+    "group": "Икономика",
+    "type": "table",
+    "nameCol": "Rarity",
+    "badgeCol": null,
+    "filterable": false,
+    "columns": [
+      "Rarity",
+      "General Meaning",
+      "Typical Availability",
+      "Notes"
+    ],
+    "rows": [
+      {
+        "Rarity": "Common",
+        "General Meaning": "Routine material",
+        "Typical Availability": "Most settlements/regions",
+        "Notes": "Usually available locally if geography permits"
+      },
+      {
+        "Rarity": "Uncommon",
+        "General Meaning": "Requires suitable region or trade",
+        "Typical Availability": "Specialists / regional markets",
+        "Notes": "May require travel or bulk order"
+      },
+      {
+        "Rarity": "Rare",
+        "General Meaning": "Difficult to source",
+        "Typical Availability": "Major markets / dangerous locations",
+        "Notes": "Often guarded, monopolized, or imported"
+      },
+      {
+        "Rarity": "Very Rare",
+        "General Meaning": "Exceptional resource",
+        "Typical Availability": "Special expeditions / elite traders",
+        "Notes": "Usually tied to monsters, magic, or remote deposits"
+      },
+      {
+        "Rarity": "Legendary",
+        "General Meaning": "Campaign-level resource",
+        "Typical Availability": "Unique locations / major events",
+        "Notes": "Not normally available for ordinary purchase"
+      },
+      {
+        "Rarity": "Rule",
+        "General Meaning": "Raw value is per 1 lb",
+        "Typical Availability": "Refining cost is per 1 lb of raw input",
+        "Notes": "Yield is the percentage of raw input mass that becomes usable refined material"
       }
     ]
   }

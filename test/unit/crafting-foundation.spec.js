@@ -75,8 +75,9 @@ describe('crafting — DOM markup contract', () => {
 });
 
 describe('crafting — static data module', () => {
-  it('ships 9 tables with the documented schema', () => {
-    expect(CRAFTING_TABLES).toHaveLength(9);
+  it('ships 11 tables with the documented schema', () => {
+    // 9 от първите два файла + 2 от DnD_Raw_Materials_Economy (materials, rarityRules)
+    expect(CRAFTING_TABLES).toHaveLength(11);
     for (const t of CRAFTING_TABLES) {
       expect(typeof t.key).toBe('string');
       expect(typeof t.label).toBe('string');

@@ -1,4 +1,4 @@
-// Generates modules/crafting-data.js for shared-inventory from the two xlsx
+// Generates modules/crafting-data.js for shared-inventory from the three xlsx
 // reference files. Run once at board-authoring time; agents consume the JS.
 const XLSX = require('xlsx');
 const fs = require('fs');
@@ -19,6 +19,7 @@ const objRows = (rows, cols, from = 0) =>
 
 const wbA = XLSX.readFile('D:/Downloads/3d/DnD_Animal_Harvesting_Reference.xlsx');
 const wbB = XLSX.readFile('D:/Downloads/3d/DnD_Experimental_Alchemy_System.xlsx');
+const wbC = XLSX.readFile('D:/Downloads/3d/DnD_Raw_Materials_Economy.xlsx');
 
 const tables = [];
 
@@ -96,8 +97,28 @@ for (const [sheet, key, label, nameCol, badgeCol] of [
   });
 }
 
+// ── Raw Materials Economy (третия файл): Rarity е ИСТИНСКАТА rarity колона ──
+{
+  const rows = readSheet(wbC, 'Raw Materials');
+  const cols = rows[0].map(String);
+  tables.push({
+    key: 'materials', label: 'Суровини', group: 'Икономика', type: 'table',
+    nameCol: 'Raw Material', badgeCol: 'Rarity', filterable: true,
+    columns: cols, rows: objRows(rows, cols),
+  });
+}
+{
+  const rows = readSheet(wbC, 'Rarity & Rules');
+  const cols = rows[0].map(String);
+  tables.push({
+    key: 'rarityRules', label: 'Рядкост (правила)', group: 'Икономика', type: 'table',
+    nameCol: 'Rarity', badgeCol: null, filterable: false,
+    columns: cols, rows: objRows(rows, cols),
+  });
+}
+
 const banner = `// ─── CRAFTING REFERENCE DATA (generated — do not edit by hand) ─────────────
-// Източник: DnD_Animal_Harvesting_Reference.xlsx + DnD_Experimental_Alchemy_System.xlsx
+// Източник: DnD_Animal_Harvesting_Reference.xlsx + DnD_Experimental_Alchemy_System.xlsx + DnD_Raw_Materials_Economy.xlsx
 // Регенерира се със scratchpad скрипта gen-crafting-data.js (виж crafting-feature-plan.md).
 // Схема per таблица: { key, label, group, type: 'table'|'info',
 //   nameCol (главната колона в списъка), badgeCol (втората колона/бадж или null),
