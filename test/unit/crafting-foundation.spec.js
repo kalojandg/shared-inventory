@@ -105,6 +105,36 @@ describe('crafting — static data module', () => {
     }
   });
 
+  it('materials carries the raw materials economy: 120 rows, Raw Material/Rarity, filterable', () => {
+    // Третият източник (DnD_Raw_Materials_Economy.xlsx). 'Rarity' е ЕДИНСТВЕНАТА
+    // истинска rarity колона в цялата референция — навсякъде другаде ролята се
+    // играе от Size/Potion Tier/Property.
+    const materials = CRAFTING_TABLES.find(t => t.key === 'materials');
+    expect(materials.type).toBe('table');
+    expect(materials.rows).toHaveLength(120);
+    expect(materials.nameCol).toBe('Raw Material');
+    expect(materials.badgeCol).toBe('Rarity');
+    expect(materials.filterable).toBe(true);
+    expect(materials.columns).toContain('Category');
+    expect(materials.columns).toContain('Raw Value / lb (gp)');
+  });
+
+  it('materials row 0 is Common soil / Common — the generation anchor', () => {
+    // Нарочно закован: хваща разместване или пресортиране при регенерация.
+    const materials = CRAFTING_TABLES.find(t => t.key === 'materials');
+    expect(materials.rows[0]['Raw Material']).toBe('Common soil');
+    expect(materials.rows[0].Rarity).toBe('Common');
+  });
+
+  it('rarityRules is a 6-row table with no badge filter', () => {
+    const rules = CRAFTING_TABLES.find(t => t.key === 'rarityRules');
+    expect(rules.type).toBe('table');
+    expect(rules.rows).toHaveLength(6);
+    expect(rules.nameCol).toBe('Rarity');
+    expect(rules.badgeCol).toBeNull();
+    expect(rules.filterable).toBe(false);
+  });
+
   it('every type:table has its nameCol (and badgeCol, when set) among its columns', () => {
     for (const t of CRAFTING_TABLES.filter(x => x.type === 'table')) {
       expect(t.columns).toContain(t.nameCol);

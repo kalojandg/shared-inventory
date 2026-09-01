@@ -142,6 +142,31 @@ describe('crafting-search — `crafting-tab`', () => {
     ]);
   });
 
+  it('materials shows the distinct Rarity values in order of appearance', async () => {
+    const { state, CRAFTING_TABLES } = await bootSearch();
+    const materials = CRAFTING_TABLES.find(t => t.key === 'materials');
+    // Derived from the data, not memorised: the select mirrors the row order.
+    const distinct = [...new Set(materials.rows.map(r => String(r.Rarity)))];
+
+    switchTab(state, 'materials');
+
+    expect(badge().classList.contains('hidden')).toBe(false);
+    expect(options()).toEqual([['', 'Всички'], ...distinct.map(v => [v, v])]);
+    expect(badge().value).toBe('');
+    // 'Rare' and 'Very Rare' are separate options — the filter matches exactly.
+    expect(distinct.indexOf('Rare')).toBeGreaterThan(-1);
+    expect(distinct.indexOf('Very Rare')).toBeGreaterThan(distinct.indexOf('Rare'));
+  });
+
+  it('rarityRules (filterable false) hides the select', async () => {
+    const { state } = await bootSearch();
+
+    switchTab(state, 'rarityRules');
+
+    expect(badge().classList.contains('hidden')).toBe(true);
+    expect(options()).toEqual([]);
+  });
+
   it('an info table has no badge filter either', async () => {
     const { state } = await bootSearch();
 
