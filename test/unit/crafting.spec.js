@@ -247,6 +247,79 @@ describe('crafting — filter', () => {
   });
 });
 
+// The raw materials economy (third xlsx source) ships as two more data-driven
+// tables — the UI renders them for free. These pin that: `materials` is the only
+// table whose badgeCol is a REAL rarity column, and `rarityRules` is the
+// unfilterable companion. Expectations are derived from the data itself, so a
+// regeneration that adds rows does not have to touch this spec.
+describe('crafting — raw materials economy', () => {
+  it('the materials chip renders the 120-row Raw Material / Rarity table', async () => {
+    const { CRAFTING_TABLES } = await bootCrafting();
+    const materials = CRAFTING_TABLES.find(t => t.key === 'materials');
+
+    chipByLabel(materials.label).click();
+
+    const ths = [...document.getElementById('craftHead').querySelectorAll('th')];
+    expect(ths).toHaveLength(3);
+    expect(ths[0].textContent).toBe('Raw Material');
+    expect(ths[1].textContent).toBe('Rarity');
+
+    expect(rows()).toHaveLength(120);
+
+    const row0 = rows()[0];
+    expect(row0.dataset.idx).toBe('0');
+    expect(row0.querySelector('strong').textContent).toBe('Common soil');
+    expect(row0.querySelector('.craft-badge').textContent).toBe('Common');
+  });
+
+  it('a materials row expands to the economy columns, without name/badge', async () => {
+    const { CRAFTING_TABLES } = await bootCrafting();
+    const materials = CRAFTING_TABLES.find(t => t.key === 'materials');
+    const row0 = materials.rows[0];
+
+    chipByLabel(materials.label).click();
+    rows()[0].click();
+
+    const details = document.querySelector('#craftBody .craft-details-row');
+    const text = details.textContent;
+    expect(text).toContain('Category');
+    expect(text).toContain(row0.Category);
+    expect(text).toContain('Typical Refined Product / Notes');
+    expect(text).toContain(row0['Typical Refined Product / Notes']);
+    // nameCol/badgeCol stay in the main row — they are not repeated here.
+    expect(text).not.toContain('Raw Material');
+    expect(text).not.toContain('Rarity');
+  });
+
+  it("the badge filter is an EXACT match: 'Rare' never pulls in 'Very Rare'", async () => {
+    const { state, CRAFTING_TABLES } = await bootCrafting();
+    const materials = CRAFTING_TABLES.find(t => t.key === 'materials');
+    const expected = materials.rows.filter(r => r.Rarity === 'Rare').map(r => r['Raw Material']);
+    // The trap only exists because both values live in the data.
+    expect(expected.length).toBeGreaterThan(0);
+    expect(materials.rows.some(r => r.Rarity === 'Very Rare')).toBe(true);
+
+    chipByLabel(materials.label).click();
+    applyFilter(state, { q: '', badge: 'Rare' });
+
+    expect(rows().map(r => r.querySelector('strong').textContent)).toEqual(expected);
+    rows().forEach(r => expect(r.querySelector('.craft-badge').textContent).toBe('Rare'));
+  });
+
+  it('rarityRules renders 6 rows with a two-column head (no badge)', async () => {
+    const { CRAFTING_TABLES } = await bootCrafting();
+    const rules = CRAFTING_TABLES.find(t => t.key === 'rarityRules');
+
+    chipByLabel(rules.label).click();
+
+    const ths = [...document.getElementById('craftHead').querySelectorAll('th')];
+    expect(ths).toHaveLength(2);
+    expect(ths[0].textContent).toBe('Rarity');
+    expect(rows()).toHaveLength(6);
+    expect(rows()[0].querySelector('.craft-badge')).toBeNull();
+  });
+});
+
 describe('crafting — info view', () => {
   it('an info table renders k/v rows and hides the table', async () => {
     const { CRAFTING_TABLES } = await bootCrafting();
